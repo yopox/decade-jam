@@ -1,0 +1,1 @@
+ocamlc rules.ml fighter.ml fight.ml test.ml -o test.exe
