@@ -1,3 +1,10 @@
 *.cmi
 *.cmo
 *.exe
+
+.idea
+
+*/debug/
+*/target/
+*/Cargo.lock
+*/**/*.rs.bk
