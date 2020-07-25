@@ -87,6 +87,8 @@ pub mod predefined {
 
     pub const DEFENSE: Rule = Rule::Id(Condition::EveryXTurn(1), Action::Defense);
 
+    pub const ATTACK_2: Rule = Rule::Id(Condition::EveryXTurn(2), Action::Attack(Target::FoeLess(Stat::HP)));
+
     pub const CAREFUL: Rule = Rule::And(
         Condition::EveryXTurn(2),
         Condition::LessXHP(30, Target::Them),

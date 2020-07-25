@@ -17,7 +17,7 @@ pub struct Fighter {
     name: String,
     stats: Stats,
     alive: bool,
-    rules: [Option<runes::Rule>; 5],
+    rules: Vec<runes::Rule>,
     team: Team
 }
 
@@ -25,12 +25,13 @@ impl Fighter {
 
     pub fn get_rule(&self, status: &fight::Status) -> &Rule {
         for rule in &self.rules {
-            match rule {
-                Some(rule) => if rule.check(status) { return rule }
-                None => {}
-            }
+            if rule.check(status) { return rule }
         }
         return &runes::predefined::DEFAULT;
+    }
+
+    pub fn set_rules(&mut self, rules: Vec<runes::Rule>) {
+        self.rules = rules;
     }
 
 }
@@ -48,7 +49,7 @@ pub fn dummy_fighter() -> Fighter {
             speed: 10
         },
         alive: true,
-        rules: [None, None, None, None, None],
+        rules: Vec::new(),
         team: Team::Ally
     }
 }
