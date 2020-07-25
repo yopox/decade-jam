@@ -1,8 +1,9 @@
 use crate::fighter;
 use crate::runes;
+use std::os::macos::raw::stat;
 
+#[derive(Debug, PartialEq)]
 enum State {
-    Unfinished,
     Victory(fighter::Team),
     Draw
 }
@@ -10,6 +11,24 @@ enum State {
 pub struct Status {
     pub(crate) turn: u8,
     fighters: std::vec::Vec<fighter::Fighter>
+}
+
+pub const MAX_TURNS: u8 = 50;
+
+fn fight(fighters: Vec<fighter::Fighter>) -> State {
+    let mut status = Status { turn: 0, fighters };
+    loop {
+        match turn(&mut status) {
+            Some(result) => return result,
+            None => ()
+        }
+    }
+}
+
+fn turn(status: &mut Status) -> Option<State> {
+    status.turn += 1;
+    if status.turn >= MAX_TURNS { return Some(State::Draw); }
+    return None
 }
 
 #[test]
@@ -38,4 +57,12 @@ fn every_two_turn() {
         },
         None => panic!("dummy_fighter expected")
     }
+}
+
+#[test]
+fn max_turns() {
+    let mut f1 = fighter::dummy_fighter();
+    let mut f2 = fighter::dummy_foe();
+    let fighters = vec![f1, f2];
+    assert_eq!(fight(fighters), State::Draw);
 }

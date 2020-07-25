@@ -11,6 +11,7 @@ struct Stats {
     speed: i16
 }
 
+#[derive(Debug, PartialEq)]
 pub enum Team { Ally, Enemy }
 
 pub struct Fighter {
@@ -52,4 +53,10 @@ pub fn dummy_fighter() -> Fighter {
         rules: Vec::new(),
         team: Team::Ally
     }
+}
+
+pub fn dummy_foe() -> Fighter {
+    let mut foe = dummy_fighter();
+    foe.team = Team::Enemy;
+    return foe
 }
