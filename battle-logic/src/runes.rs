@@ -64,8 +64,11 @@ impl Rule {
             Rule::And(cond1, cond2, _) => cond1.check(status) && cond2.check(status),
             Rule::Nand(cond1, cond2, _) => !(cond1.check(status) && cond2.check(status)),
             Rule::Or(cond1, cond2, _) => cond1.check(status) || cond2.check(status),
-            Rule::Xor(cond1, cond2, _) => (cond1.check(status) && !cond2.check(status)) || (!cond1.check(status) && cond2.check(status)),
-            Rule::Nor(cond1, cond2, _) => !(cond1.check(status) || cond2.check(status))
+            Rule::Xor(cond1, cond2, _) => {
+                (cond1.check(status) && !cond2.check(status))
+                    || (!cond1.check(status) && cond2.check(status))
+            }
+            Rule::Nor(cond1, cond2, _) => !(cond1.check(status) || cond2.check(status)),
         }
     }
 }
@@ -87,14 +90,19 @@ pub mod predefined {
 
     pub const DEFENSE: Rule = Rule::Id(Condition::EveryXTurn(1), Action::Defense);
 
-    pub const ATTACK_2: Rule = Rule::Id(Condition::EveryXTurn(2), Action::Attack(Target::FoeLess(Stat::HP)));
+    pub const ATTACK_2: Rule = Rule::Id(
+        Condition::EveryXTurn(2),
+        Action::Attack(Target::FoeLess(Stat::HP)),
+    );
 
     pub const CAREFUL: Rule = Rule::And(
         Condition::EveryXTurn(2),
         Condition::LessXHP(30, Target::Them),
-        Action::Defense);
+        Action::Defense,
+    );
 
     pub const MAGICIAN: Rule = Rule::Id(
-        Condition::EveryXTurn(3), Action::Spell(Target::FoeLess(Stat::HP)),
+        Condition::EveryXTurn(3),
+        Action::Spell(Target::FoeLess(Stat::HP)),
     );
 }

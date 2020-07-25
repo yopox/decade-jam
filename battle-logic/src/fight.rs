@@ -1,16 +1,15 @@
 use crate::fighter;
 use crate::runes;
-use std::os::macos::raw::stat;
 
 #[derive(Debug, PartialEq)]
 enum State {
     Victory(fighter::Team),
-    Draw
+    Draw,
 }
 
 pub struct Status {
     pub(crate) turn: u8,
-    fighters: std::vec::Vec<fighter::Fighter>
+    fighters: std::vec::Vec<fighter::Fighter>,
 }
 
 pub const MAX_TURNS: u8 = 50;
@@ -20,15 +19,17 @@ fn fight(fighters: Vec<fighter::Fighter>) -> State {
     loop {
         match turn(&mut status) {
             Some(result) => return result,
-            None => ()
+            None => (),
         }
     }
 }
 
 fn turn(status: &mut Status) -> Option<State> {
     status.turn += 1;
-    if status.turn >= MAX_TURNS { return Some(State::Draw); }
-    return None
+    if status.turn >= MAX_TURNS {
+        return Some(State::Draw);
+    }
+    return None;
 }
 
 #[test]
@@ -38,7 +39,7 @@ fn default_rule() {
     let status = Status { turn: 0, fighters };
     match status.fighters.get(0) {
         Some(fighter) => assert_eq!(fighter.get_rule(&status), &runes::predefined::DEFAULT),
-        None => panic!("dummy_fighter expected")
+        None => panic!("dummy_fighter expected"),
     }
 }
 
@@ -54,8 +55,8 @@ fn every_two_turn() {
             let rule = fighter.get_rule(&status);
             assert_ne!(rule, &runes::predefined::DEFAULT);
             assert_eq!(rule, &runes::predefined::ATTACK_2);
-        },
-        None => panic!("dummy_fighter expected")
+        }
+        None => panic!("dummy_fighter expected"),
     }
 }
 
