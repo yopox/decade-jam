@@ -1,4 +1,6 @@
-#[derive(Debug)]
+use crate::fight::Status;
+
+#[derive(Debug, PartialEq)]
 pub enum Rule {
     Id(Condition, Action),
     Not(Condition, Action),
@@ -9,14 +11,14 @@ pub enum Rule {
     Nor(Condition, Condition, Action),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Condition {
-    EveryXTurn(u16),
-    LessXHP(u16, Target),
-    MoreXHP(u16, Target),
+    EveryXTurn(u8),
+    LessXHP(u8, Target),
+    MoreXHP(u8, Target),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Action {
     Attack(Target),
     Defense,
@@ -24,7 +26,7 @@ pub enum Action {
     Wait,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Target {
     Them,
     AllyMost(Stat),
@@ -33,13 +35,49 @@ pub enum Target {
     FoeLess(Stat),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Stat {
     HP,
     Attack,
     Defense,
     Wisdom,
     Speed,
+}
+
+impl Rule {
+    pub fn get_action(&self) -> &Action {
+        match self {
+            Rule::Id(_, action) => action,
+            Rule::Not(_, action) => action,
+            Rule::And(_, _, action) => action,
+            Rule::Nand(_, _, action) => action,
+            Rule::Or(_, _, action) => action,
+            Rule::Xor(_, _, action) => action,
+            Rule::Nor(_, _, action) => action,
+        }
+    }
+
+    pub fn check(&self, status: &Status) -> bool {
+        match self {
+            Rule::Id(cond, _) => cond.check(status),
+            Rule::Not(cond, _) => !cond.check(status),
+            Rule::And(cond1, cond2, _) => cond1.check(status) && cond2.check(status),
+            Rule::Nand(cond1, cond2, _) => !(cond1.check(status) && cond2.check(status)),
+            Rule::Or(cond1, cond2, _) => cond1.check(status) || cond2.check(status),
+            Rule::Xor(cond1, cond2, _) => (cond1.check(status) && !cond2.check(status)) || (!cond1.check(status) && cond2.check(status)),
+            Rule::Nor(cond1, cond2, _) => !(cond1.check(status) || cond2.check(status))
+        }
+    }
+}
+
+impl Condition {
+    pub fn check(&self, status: &Status) -> bool {
+        match self {
+            Condition::EveryXTurn(x) => status.turn % x == 0,
+            Condition::LessXHP(_, _) => true,
+            Condition::MoreXHP(_, _) => true,
+        }
+    }
 }
 
 pub mod predefined {
