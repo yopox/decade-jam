@@ -1,14 +1,14 @@
 use crate::runes::Rule;
 use crate::{fight, runes};
 
-struct Stats {
+pub struct Stats {
     hp: u16,
     mp: u16,
     attack: i16,
     defense: i16,
     holy: i16,
     evil: i16,
-    speed: i16,
+    pub(crate) speed: i16,
 }
 
 #[derive(Debug, PartialEq)]
@@ -19,7 +19,7 @@ pub enum Team {
 
 pub struct Fighter {
     name: String,
-    stats: Stats,
+    pub stats: Stats,
     alive: bool,
     rules: Vec<runes::Rule>,
     team: Team,

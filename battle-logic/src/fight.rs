@@ -1,5 +1,6 @@
 use crate::fighter;
 use crate::runes;
+use std::os::macos::raw::stat;
 
 #[derive(Debug, PartialEq)]
 enum State {
@@ -29,6 +30,10 @@ fn turn(status: &mut Status) -> Option<State> {
     if status.turn >= MAX_TURNS {
         return Some(State::Draw);
     }
+
+    // Order fighters by speed
+    status.fighters.sort_by_key(|fighter| -fighter.stats.speed);
+
     return None;
 }
 
@@ -37,10 +42,8 @@ fn default_rule() {
     let f = fighter::dummy_fighter();
     let fighters = vec![f];
     let status = Status { turn: 0, fighters };
-    match status.fighters.get(0) {
-        Some(fighter) => assert_eq!(fighter.get_rule(&status), &runes::predefined::DEFAULT),
-        None => panic!("dummy_fighter expected"),
-    }
+
+    assert_eq!(status.fighters.get(0).unwrap().get_rule(&status), &runes::predefined::DEFAULT);
 }
 
 #[test]
@@ -50,14 +53,9 @@ fn every_two_turn() {
     let fighters = vec![f];
     let status = Status { turn: 2, fighters };
 
-    match status.fighters.get(0) {
-        Some(fighter) => {
-            let rule = fighter.get_rule(&status);
-            assert_ne!(rule, &runes::predefined::DEFAULT);
-            assert_eq!(rule, &runes::predefined::ATTACK_2);
-        }
-        None => panic!("dummy_fighter expected"),
-    }
+    let rule = status.fighters.get(0).unwrap().get_rule(&status);
+    assert_ne!(rule, &runes::predefined::DEFAULT);
+    assert_eq!(rule, &runes::predefined::ATTACK_2);
 }
 
 #[test]
@@ -65,5 +63,21 @@ fn max_turns() {
     let mut f1 = fighter::dummy_fighter();
     let mut f2 = fighter::dummy_foe();
     let fighters = vec![f1, f2];
+
     assert_eq!(fight(fighters), State::Draw);
+}
+
+#[test]
+fn order_by_speed() {
+    let mut f1 = fighter::dummy_fighter();
+    f1.stats.speed = 10;
+    let mut f2 = fighter::dummy_foe();
+    f2.stats.speed = 20;
+    let mut status = Status { turn: 0, fighters: vec![f1, f2] };
+
+    assert_eq!(status.fighters.get(0).unwrap().stats.speed, 10);
+    assert_eq!(status.fighters.get(1).unwrap().stats.speed, 20);
+    turn(&mut status);
+    assert_eq!(status.fighters.get(0).unwrap().stats.speed, 20);
+    assert_eq!(status.fighters.get(1).unwrap().stats.speed, 10);
 }
