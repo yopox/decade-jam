@@ -1,6 +1,7 @@
 use crate::fighter;
 use crate::runes;
 use std::os::macos::raw::stat;
+use crate::runes::Stat;
 
 #[derive(Debug, PartialEq)]
 enum State {
@@ -10,7 +11,7 @@ enum State {
 
 pub struct Status {
     pub(crate) turn: u8,
-    fighters: std::vec::Vec<fighter::Fighter>,
+    fighters: Vec<fighter::Fighter>,
 }
 
 pub const MAX_TURNS: u8 = 50;
@@ -32,7 +33,8 @@ fn turn(status: &mut Status) -> Option<State> {
     }
 
     // Order fighters by speed
-    status.fighters.sort_by_key(|fighter| -fighter.stats.speed);
+    status.fighters.sort_by_key(|fighter| fighter.get_stat(Stat::Speed));
+    status.fighters.reverse();
 
     return None;
 }
@@ -69,15 +71,13 @@ fn max_turns() {
 
 #[test]
 fn order_by_speed() {
-    let mut f1 = fighter::dummy_fighter();
-    f1.stats.speed = 10;
-    let mut f2 = fighter::dummy_foe();
-    f2.stats.speed = 20;
+    let mut f1 = fighter::dummy_foe();
+    let mut f2 = fighter::dummy_fighter();
     let mut status = Status { turn: 0, fighters: vec![f1, f2] };
 
-    assert_eq!(status.fighters.get(0).unwrap().stats.speed, 10);
-    assert_eq!(status.fighters.get(1).unwrap().stats.speed, 20);
+    assert_eq!(status.fighters.get(0).unwrap().get_stat(Stat::Speed), 5);
+    assert_eq!(status.fighters.get(1).unwrap().get_stat(Stat::Speed), 10);
     turn(&mut status);
-    assert_eq!(status.fighters.get(0).unwrap().stats.speed, 20);
-    assert_eq!(status.fighters.get(1).unwrap().stats.speed, 10);
+    assert_eq!(status.fighters.get(0).unwrap().get_stat(Stat::Speed), 10);
+    assert_eq!(status.fighters.get(1).unwrap().get_stat(Stat::Speed), 5);
 }

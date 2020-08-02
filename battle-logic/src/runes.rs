@@ -37,11 +37,14 @@ pub enum Target {
 
 #[derive(Debug, PartialEq)]
 pub enum Stat {
-    HP,
+    Health,
+    Mana,
     Attack,
     Defense,
     Wisdom,
     Speed,
+    Nature,
+    Demon
 }
 
 impl Rule {
@@ -92,7 +95,7 @@ pub mod predefined {
 
     pub const ATTACK_2: Rule = Rule::Id(
         Condition::EveryXTurn(2),
-        Action::Attack(Target::FoeLess(Stat::HP)),
+        Action::Attack(Target::FoeLess(Stat::Health)),
     );
 
     pub const CAREFUL: Rule = Rule::And(
@@ -103,6 +106,6 @@ pub mod predefined {
 
     pub const MAGICIAN: Rule = Rule::Id(
         Condition::EveryXTurn(3),
-        Action::Spell(Target::FoeLess(Stat::HP)),
+        Action::Spell(Target::FoeLess(Stat::Health)),
     );
 }

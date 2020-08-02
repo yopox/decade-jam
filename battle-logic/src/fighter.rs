@@ -1,14 +1,15 @@
-use crate::runes::Rule;
+use crate::runes::{Rule, Stat};
 use crate::{fight, runes};
 
-pub struct Stats {
-    hp: u16,
-    mp: u16,
-    attack: i16,
-    defense: i16,
-    holy: i16,
-    evil: i16,
-    pub(crate) speed: i16,
+struct Stats {
+    health: u16,
+    mana: u16,
+    attack: u16,
+    defense: u16,
+    wisdom: u16,
+    speed: u16,
+    nature: u16,
+    demon: u16,
 }
 
 #[derive(Debug, PartialEq)]
@@ -19,20 +20,31 @@ pub enum Team {
 
 pub struct Fighter {
     name: String,
-    pub stats: Stats,
+    stats: Stats,
     alive: bool,
     rules: Vec<runes::Rule>,
     team: Team,
 }
 
 impl Fighter {
-    pub fn get_rule(&self, status: &fight::Status) -> &Rule {
-        for rule in &self.rules {
-            if rule.check(status) {
-                return rule;
-            }
+    pub fn get_stat(&self, stat: runes::Stat) -> u16 {
+        match stat {
+            Stat::Health => self.stats.health,
+            Stat::Mana => self.stats.mana,
+            Stat::Attack => self.stats.attack,
+            Stat::Defense => self.stats.defense,
+            Stat::Wisdom => self.stats.wisdom,
+            Stat::Speed => self.stats.speed,
+            Stat::Nature => self.stats.nature,
+            Stat::Demon => self.stats.demon,
         }
-        return &runes::predefined::DEFAULT;
+    }
+
+    pub fn get_rule(&self, status: &fight::Status) -> &Rule {
+        return match self.rules.iter().find(|rule| rule.check(status)) {
+            Some(rule) => rule,
+            None => &runes::predefined::DEFAULT,
+        }
     }
 
     pub fn set_rules(&mut self, rules: Vec<runes::Rule>) {
@@ -44,13 +56,14 @@ pub fn dummy_fighter() -> Fighter {
     Fighter {
         name: "Arches".to_string(),
         stats: Stats {
-            hp: 10,
-            mp: 0,
+            health: 10,
+            mana: 0,
             attack: 10,
             defense: 0,
-            holy: 0,
-            evil: 0,
             speed: 10,
+            wisdom: 0,
+            nature: 0,
+            demon: 0,
         },
         alive: true,
         rules: Vec::new(),
@@ -60,6 +73,7 @@ pub fn dummy_fighter() -> Fighter {
 
 pub fn dummy_foe() -> Fighter {
     let mut foe = dummy_fighter();
+    foe.stats.speed = 5;
     foe.team = Team::Enemy;
     return foe;
 }
