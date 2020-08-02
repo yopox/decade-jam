@@ -1,5 +1,6 @@
-use crate::runes::{Rule, Stat};
 use crate::{fight, runes};
+use crate::runes::{Action, Rule, Stat};
+use crate::predefined;
 
 struct Stats {
     health: u16,
@@ -21,10 +22,16 @@ pub enum Team {
 pub struct Fighter {
     name: String,
     stats: Stats,
-    alive: bool,
+    pub alive: bool,
     rules: Vec<runes::Rule>,
     team: Team,
 }
+
+#[derive(Debug, PartialEq)]
+pub struct Weapon {}
+
+#[derive(Debug, PartialEq)]
+pub struct Spell {}
 
 impl Fighter {
     pub fn get_stat(&self, stat: runes::Stat) -> u16 {
@@ -43,12 +50,23 @@ impl Fighter {
     pub fn get_rule(&self, status: &fight::Status) -> &Rule {
         return match self.rules.iter().find(|rule| rule.check(status)) {
             Some(rule) => rule,
-            None => &runes::predefined::DEFAULT,
-        }
+            None => &predefined::rules::DEFAULT,
+        };
     }
 
     pub fn set_rules(&mut self, rules: Vec<runes::Rule>) {
         self.rules = rules;
+    }
+
+    pub fn perform(&self, action: &runes::Action, status: &fight::Status) {
+        match action {
+            runes::Action::Attack(weapon, target) => {}
+            Action::Defense => {}
+            Action::Spell(spell, target) => {}
+            Action::Wait => {
+                println!("{} waits.", &self.name);
+            }
+        };
     }
 }
 
@@ -73,6 +91,7 @@ pub fn dummy_fighter() -> Fighter {
 
 pub fn dummy_foe() -> Fighter {
     let mut foe = dummy_fighter();
+    foe.name = "Azazel".to_string();
     foe.stats.speed = 5;
     foe.team = Team::Enemy;
     return foe;

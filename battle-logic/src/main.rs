@@ -1,7 +1,9 @@
 mod fight;
 mod fighter;
 mod runes;
+mod predefined;
 
 fn main() {
-    println!("{:?}", &runes::predefined::CAREFUL.get_action());
+    let fighters = vec![fighter::dummy_fighter(), fighter::dummy_foe()];
+    fight::fight(fighters);
 }

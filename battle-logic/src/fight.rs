@@ -1,10 +1,12 @@
+use std::os::macos::raw::stat;
+
 use crate::fighter;
 use crate::runes;
-use std::os::macos::raw::stat;
 use crate::runes::Stat;
+use crate::predefined;
 
 #[derive(Debug, PartialEq)]
-enum State {
+pub enum State {
     Victory(fighter::Team),
     Draw,
 }
@@ -16,7 +18,7 @@ pub struct Status {
 
 pub const MAX_TURNS: u8 = 50;
 
-fn fight(fighters: Vec<fighter::Fighter>) -> State {
+pub fn fight(fighters: Vec<fighter::Fighter>) -> State {
     let mut status = Status { turn: 0, fighters };
     loop {
         match turn(&mut status) {
@@ -28,13 +30,27 @@ fn fight(fighters: Vec<fighter::Fighter>) -> State {
 
 fn turn(status: &mut Status) -> Option<State> {
     status.turn += 1;
-    if status.turn >= MAX_TURNS {
+    if status.turn > MAX_TURNS {
         return Some(State::Draw);
     }
+
+    println!("Turn {}", status.turn);
 
     // Order fighters by speed
     status.fighters.sort_by_key(|fighter| fighter.get_stat(Stat::Speed));
     status.fighters.reverse();
+
+    for fighter in &status.fighters {
+        if !fighter.alive { continue; }
+
+        // Rule for the turn
+        let rule = fighter.get_rule(status);
+
+        // Perform the action
+        fighter.perform(rule.get_action(), &status);
+    }
+
+    println!();
 
     return None;
 }
@@ -45,19 +61,19 @@ fn default_rule() {
     let fighters = vec![f];
     let status = Status { turn: 0, fighters };
 
-    assert_eq!(status.fighters.get(0).unwrap().get_rule(&status), &runes::predefined::DEFAULT);
+    assert_eq!(status.fighters.get(0).unwrap().get_rule(&status), &predefined::rules::DEFAULT);
 }
 
 #[test]
 fn every_two_turn() {
     let mut f = fighter::dummy_fighter();
-    f.set_rules(vec![runes::predefined::ATTACK_2]);
+    f.set_rules(vec![predefined::rules::ATTACK_2]);
     let fighters = vec![f];
     let status = Status { turn: 2, fighters };
 
     let rule = status.fighters.get(0).unwrap().get_rule(&status);
-    assert_ne!(rule, &runes::predefined::DEFAULT);
-    assert_eq!(rule, &runes::predefined::ATTACK_2);
+    assert_ne!(rule, &predefined::rules::DEFAULT);
+    assert_eq!(rule, &predefined::rules::ATTACK_2);
 }
 
 #[test]

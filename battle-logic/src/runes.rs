@@ -1,4 +1,5 @@
 use crate::fight::Status;
+use crate::fighter;
 
 #[derive(Debug, PartialEq)]
 pub enum Rule {
@@ -14,15 +15,16 @@ pub enum Rule {
 #[derive(Debug, PartialEq)]
 pub enum Condition {
     EveryXTurn(u8),
+    OnTurn(u8),
     LessXHP(u8, Target),
     MoreXHP(u8, Target),
 }
 
 #[derive(Debug, PartialEq)]
 pub enum Action {
-    Attack(Target),
+    Attack(fighter::Weapon, Target),
     Defense,
-    Spell(Target),
+    Spell(fighter::Spell, Target),
     Wait,
 }
 
@@ -44,7 +46,7 @@ pub enum Stat {
     Wisdom,
     Speed,
     Nature,
-    Demon
+    Demon,
 }
 
 impl Rule {
@@ -80,32 +82,9 @@ impl Condition {
     pub fn check(&self, status: &Status) -> bool {
         match self {
             Condition::EveryXTurn(x) => status.turn % x == 0,
+            Condition::OnTurn(turn) => status.turn == *turn,
             Condition::LessXHP(_, _) => true,
             Condition::MoreXHP(_, _) => true,
         }
     }
-}
-
-pub mod predefined {
-    use crate::runes::*;
-
-    pub const DEFAULT: Rule = Rule::Id(Condition::EveryXTurn(1), Action::Wait);
-
-    pub const DEFENSE: Rule = Rule::Id(Condition::EveryXTurn(1), Action::Defense);
-
-    pub const ATTACK_2: Rule = Rule::Id(
-        Condition::EveryXTurn(2),
-        Action::Attack(Target::FoeLess(Stat::Health)),
-    );
-
-    pub const CAREFUL: Rule = Rule::And(
-        Condition::EveryXTurn(2),
-        Condition::LessXHP(30, Target::Them),
-        Action::Defense,
-    );
-
-    pub const MAGICIAN: Rule = Rule::Id(
-        Condition::EveryXTurn(3),
-        Action::Spell(Target::FoeLess(Stat::Health)),
-    );
 }
