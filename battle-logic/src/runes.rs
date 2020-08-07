@@ -1,5 +1,6 @@
 use crate::fight::Status;
 use crate::fighter;
+use crate::equipment;
 
 #[derive(Debug, PartialEq)]
 pub enum Rule {
@@ -18,13 +19,14 @@ pub enum Condition {
     OnTurn(u8),
     LessXHP(u8, Target),
     MoreXHP(u8, Target),
+    HasStatus(Target, fighter::Status),
 }
 
 #[derive(Debug, PartialEq)]
 pub enum Action {
-    Attack(fighter::Weapon, Target),
+    Attack(equipment::Weapon, Target),
     Defense,
-    Spell(fighter::Spell, Target),
+    Spell(equipment::Spell, Target),
     Wait,
 }
 
@@ -85,6 +87,7 @@ impl Condition {
             Condition::OnTurn(turn) => status.turn == *turn,
             Condition::LessXHP(_, _) => true,
             Condition::MoreXHP(_, _) => true,
+            Condition::HasStatus(_, _) => true,
         }
     }
 }

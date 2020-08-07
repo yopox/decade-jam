@@ -1,3 +1,4 @@
+mod equipment;
 mod fight;
 mod fighter;
 mod runes;

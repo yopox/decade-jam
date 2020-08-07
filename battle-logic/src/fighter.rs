@@ -1,6 +1,9 @@
 use crate::{fight, runes};
 use crate::runes::{Action, Rule, Stat};
 use crate::predefined;
+use crate::predefined::rules::AllRules;
+use crate::predefined::weapons::AllWeapons;
+use crate::predefined::spells::AllSpells;
 
 struct Stats {
     health: u16,
@@ -19,19 +22,25 @@ pub enum Team {
     Enemy,
 }
 
+#[derive(Debug, PartialEq)]
+pub enum Status {
+    Poisoned,
+}
+
 pub struct Fighter {
     name: String,
     stats: Stats,
     pub alive: bool,
     rules: Vec<runes::Rule>,
     team: Team,
+    default_rule: Rule
 }
 
-#[derive(Debug, PartialEq)]
-pub struct Weapon {}
-
-#[derive(Debug, PartialEq)]
-pub struct Spell {}
+pub enum DamageType {
+    NEUTRAL,
+    NATURE,
+    DEMON
+}
 
 impl Fighter {
     pub fn get_stat(&self, stat: runes::Stat) -> u16 {
@@ -50,7 +59,7 @@ impl Fighter {
     pub fn get_rule(&self, status: &fight::Status) -> &Rule {
         return match self.rules.iter().find(|rule| rule.check(status)) {
             Some(rule) => rule,
-            None => &predefined::rules::DEFAULT,
+            None => &self.default_rule,
         };
     }
 
@@ -86,6 +95,7 @@ pub fn dummy_fighter() -> Fighter {
         alive: true,
         rules: Vec::new(),
         team: Team::Ally,
+        default_rule: AllRules::Default.new()
     }
 }
 
