@@ -1,6 +1,4 @@
 use std::iter::Filter;
-use std::ops::DivAssign;
-use std::os::macos::raw::stat;
 use std::slice::Iter;
 
 use crate::fighter;

@@ -1,5 +1,3 @@
-use std::os::macos::raw::stat;
-
 use crate::{fight, runes};
 use crate::equipment::Weapon;
 use crate::predefined;
