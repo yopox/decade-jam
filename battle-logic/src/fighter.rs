@@ -1,9 +1,12 @@
+use std::os::macos::raw::stat;
+
 use crate::{fight, runes};
-use crate::runes::{Action, Rule, Stat};
+use crate::equipment::Weapon;
 use crate::predefined;
 use crate::predefined::rules::AllRules;
-use crate::predefined::weapons::AllWeapons;
 use crate::predefined::spells::AllSpells;
+use crate::predefined::weapons::AllWeapons;
+use crate::runes::{Action, Rule, Stat};
 
 struct Stats {
     health: u16,
@@ -16,13 +19,7 @@ struct Stats {
     demon: u16,
 }
 
-#[derive(Debug, PartialEq)]
-pub enum Team {
-    Ally,
-    Enemy,
-}
-
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Status {
     Poisoned,
 }
@@ -32,18 +29,21 @@ pub struct Fighter {
     stats: Stats,
     pub alive: bool,
     rules: Vec<runes::Rule>,
-    team: Team,
-    default_rule: Rule
+    default_rule: Rule,
 }
 
 pub enum DamageType {
     NEUTRAL,
     NATURE,
-    DEMON
+    DEMON,
 }
 
 impl Fighter {
-    pub fn get_stat(&self, stat: runes::Stat) -> u16 {
+    pub fn turn(&mut self, status: &mut fight::Fight) {
+        println!("Turn of {}.", self.name)
+    }
+
+    pub fn get_stat(&self, stat: &runes::Stat) -> u16 {
         match stat {
             Stat::Health => self.stats.health,
             Stat::Mana => self.stats.mana,
@@ -56,10 +56,10 @@ impl Fighter {
         }
     }
 
-    pub fn get_rule(&self, status: &fight::Status) -> &Rule {
+    pub fn get_rule(&self, status: &fight::Fight) -> Rule {
         return match self.rules.iter().find(|rule| rule.check(status)) {
-            Some(rule) => rule,
-            None => &self.default_rule,
+            Some(rule) => rule.clone(),
+            None => self.default_rule.clone(),
         };
     }
 
@@ -67,15 +67,8 @@ impl Fighter {
         self.rules = rules;
     }
 
-    pub fn perform(&self, action: &runes::Action, status: &fight::Status) {
-        match action {
-            runes::Action::Attack(weapon, target) => {}
-            Action::Defense => {}
-            Action::Spell(spell, target) => {}
-            Action::Wait => {
-                println!("{} waits.", &self.name);
-            }
-        };
+    pub(crate) fn damage(&mut self, amount: u16) {
+        self.stats.health -= amount;
     }
 }
 
@@ -94,8 +87,7 @@ pub fn dummy_fighter() -> Fighter {
         },
         alive: true,
         rules: Vec::new(),
-        team: Team::Ally,
-        default_rule: AllRules::Default.new()
+        default_rule: AllRules::Default.new(),
     }
 }
 
@@ -103,6 +95,5 @@ pub fn dummy_foe() -> Fighter {
     let mut foe = dummy_fighter();
     foe.name = "Azazel".to_string();
     foe.stats.speed = 5;
-    foe.team = Team::Enemy;
     return foe;
 }

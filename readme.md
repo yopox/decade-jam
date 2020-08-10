@@ -4,4 +4,4 @@ This is my entry for the [decade jam](https://itch.io/jam/decadejam), an unusual
 
 ## Fight
 
-The logic of battles is written in `Ocaml` in the `fight/` directory.
+The logic of battles is written in `Rust` in the `battle-logic/` directory.

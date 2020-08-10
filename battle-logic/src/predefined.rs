@@ -3,16 +3,16 @@ use crate::runes;
 
 pub mod rules {
     use crate::predefined::*;
-    use crate::runes::*;
     use crate::predefined::spells::AllSpells;
     use crate::predefined::weapons::AllWeapons;
+    use crate::runes::*;
 
     pub enum AllRules {
         Default,
         Defense,
         Attack2,
         Careful,
-        Magician
+        Magician,
     }
 
     impl AllRules {
@@ -59,7 +59,7 @@ pub mod weapons {
         match name {
             AllWeapons::WoodenSword => Weapon {
                 name: String::from("Wooden Sword"),
-                effects: vec![Effect::PhysicalAttack { on_self: false, damage: 5 }].into_boxed_slice()
+                effects: vec![Effect::PhysicalAttack { on_self: false, damage: 5 }],
             }
         }
     }
@@ -82,9 +82,8 @@ pub mod spells {
         match name {
             AllSpells::Fireball => Spell {
                 name: String::from("Fireball"),
-                effects: vec![Effect::PhysicalAttack { on_self: false, damage: 5 }].into_boxed_slice()
+                effects: vec![Effect::PhysicalAttack { on_self: false, damage: 5 }],
             }
         }
     }
-
 }
