@@ -7,10 +7,19 @@ pub enum Effect {
     MagicalAttack { on_self: bool, damage: u16 },
     Heal { on_self: bool, amount: u16, duration: u8 },
     Boost { on_self: bool, stat: Stat, amount: i16, duration: u8 },
-    Leech { stat: Stat, amount: u16, duration: u8 },
 }
 
 impl Effect {
+
+    pub fn on_self(&self) -> bool {
+        *match self {
+            Effect::PhysicalAttack { on_self, damage: _ } => on_self,
+            Effect::MagicalAttack { on_self, damage: _ } => on_self,
+            Effect::Heal { on_self, amount: _, duration: _ } => on_self,
+            Effect::Boost { on_self, stat: _, amount: _, duration: _ } => on_self,
+        }
+    }
+
     pub fn apply(&self, source: &mut Fighter, target: &mut Fighter) {
         match self {
             Effect::PhysicalAttack { on_self, damage } => {
@@ -19,7 +28,6 @@ impl Effect {
             Effect::MagicalAttack { on_self, damage } => {}
             Effect::Heal { on_self, amount, duration } => {}
             Effect::Boost { on_self, stat, amount, duration } => {}
-            Effect::Leech { stat, amount, duration } => {}
         }
     }
 }

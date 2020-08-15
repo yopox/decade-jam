@@ -1,6 +1,7 @@
 use crate::{fight, fighter};
 use crate::equipment;
 use crate::fight::{Fight, FighterID};
+use std::ops::Deref;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Rule {
@@ -102,25 +103,25 @@ impl Target {
         match self {
             Target::Them => active.clone(),
             Target::AllyMost(stat) => {
-                match allies.max_by_key(|(_, f)| f.get_stat(stat)) {
+                match allies.max_by_key(|(_, f)| f.borrow().deref().get_stat(stat)) {
                     Some((id, _)) => id.clone(),
                     None => FighterID::None
                 }
             }
             Target::AllyLess(stat) => {
-                match allies.min_by_key(|(_, f)| f.get_stat(stat)) {
+                match allies.min_by_key(|(_, f)| f.borrow().deref().get_stat(stat)) {
                     Some((id, _)) => id.clone(),
                     None => FighterID::None
                 }
             }
             Target::FoeMost(stat) => {
-                match enemies.max_by_key(|(_, f)| f.get_stat(stat)) {
+                match enemies.max_by_key(|(_, f)| f.borrow().deref().get_stat(stat)) {
                     Some((id, _)) => id.clone(),
                     None => FighterID::None
                 }
             }
             Target::FoeLess(stat) => {
-                match enemies.min_by_key(|(_, f)| f.get_stat(stat)) {
+                match enemies.min_by_key(|(_, f)| f.borrow().deref().get_stat(stat)) {
                     Some((id, _)) => id.clone(),
                     None => FighterID::None
                 }
@@ -138,10 +139,11 @@ impl Action {
         }
     }
 
-    pub fn execute(
-        &self, active: &fight::FighterID, target: &fight::FighterID,
-        fighters: &mut Vec<(fight::FighterID, fighter::Fighter)>,
-    ) {
-        println!("{:?} does {:?} on {:?}", active, self, target);
+    pub fn execute(&self, active: &mut fighter::Fighter, target: &mut fighter::Fighter) {
+        println!("{:?} uses {:?} on {:?}.", active.get_name(), self, target.get_name());
+    }
+
+    pub fn execute_self(&self, active: &mut fighter::Fighter) {
+        println!("{:?} uses {:?}.", active.get_name(), self);
     }
 }

@@ -2,13 +2,16 @@ use std::iter::Filter;
 use std::slice::Iter;
 
 use crate::fighter;
-use crate::fighter::Fighter;
+use crate::fighter::{Fighter, dummy_foe, dummy_fighter};
 use crate::predefined;
 use crate::predefined::rules::AllRules;
 use crate::predefined::spells::AllSpells;
 use crate::predefined::weapons::AllWeapons;
 use crate::runes;
 use crate::runes::{Stat, Target};
+use std::cell::{RefCell, Ref, BorrowMutError, RefMut};
+use std::borrow::Borrow;
+use std::ops::{Deref, DerefMut};
 
 #[derive(Debug, PartialEq)]
 pub enum State {
@@ -35,22 +38,12 @@ impl FighterID {
 
 pub struct Fight {
     pub turn: u8,
-    pub fighters: Vec<(FighterID, fighter::Fighter)>,
+    pub fighters: Vec<(FighterID, RefCell<fighter::Fighter>)>,
 }
 
 impl Fight {
     pub fn start(mut team1: Vec<Fighter>, mut team2: Vec<Fighter>) -> State {
-
-        // Build fighters array
-        let mut fighters = Vec::new();
-        team1.into_iter().enumerate().for_each(|(i, f)| fighters.push(
-            (FighterID::Ally(i), f)
-        ));
-        team2.into_iter().enumerate().for_each(|(i, f)| fighters.push(
-            (FighterID::Enemy(i), f)
-        ));
-
-        let mut fight = Fight { turn: 0, fighters };
+        let mut fight = Fight::build_fight(team1, team2);
 
         loop {
             match fight.turn() {
@@ -60,11 +53,16 @@ impl Fight {
         }
     }
 
-    pub fn get_fighter(&self, id: &FighterID) -> &Fighter {
-        match self.fighters.iter().find(|(fID, _)| *fID == *id) {
-            Some((_, x)) => x,
-            None => panic!("Tried to get &Fighter from wrong FighterID."),
-        }
+    pub fn build_fight(mut team1: Vec<Fighter>, mut team2: Vec<Fighter>) -> Fight {
+        let mut fighters = Vec::new();
+        team1.into_iter().enumerate().for_each(|(i, f)| fighters.push(
+            (FighterID::Ally(i), RefCell::new(f))
+        ));
+        team2.into_iter().enumerate().for_each(|(i, f)| fighters.push(
+            (FighterID::Enemy(i), RefCell::new(f))
+        ));
+
+        Fight { turn: 0, fighters }
     }
 
     pub fn turn(&mut self) -> Option<State> {
@@ -76,7 +74,7 @@ impl Fight {
         println!("Turn {}", self.turn);
 
         // Order fighters by speed
-        self.fighters.sort_by_key(|(id, fighter)| fighter.get_stat(&Stat::Speed));
+        self.fighters.sort_by_key(|(id, fighter)| fighter.borrow().deref().get_stat(&Stat::Speed));
         self.fighters.reverse();
 
         // Get turns order
@@ -84,13 +82,45 @@ impl Fight {
         self.fighters.iter().for_each(|(id, _)| turn_order.push(id.clone()));
 
         for id in turn_order {
-            if !self.get_fighter(&id).alive { continue; }
 
-            let rule = self.get_fighter(&id).get_rule(self);
+            // Resolve rule, action, target for the turn
+            let rule = {
+                let active = match self.fighters.iter().find(|(fID, _)| *fID == id) {
+                    Some((_, x)) => x.borrow(),
+                    None => panic!("Tried to get &Fighter from wrong FighterID."),
+                };
+
+                if !active.alive { continue; }
+                active.deref().get_rule(self)
+            };
+
             let action = rule.get_action();
             let target = action.get_target(&id, &self);
 
-            action.execute(&id, &target, &mut self.fighters);
+            // Execute the action
+
+            let mut active = match self.fighters.iter().find(|(fID, _)| *fID == id) {
+                Some((_, x)) => match x.try_borrow_mut() {
+                    Ok(mut f) => f,
+                    Err(_) => panic!("Active fighter already borrowed."),
+                },
+                None => panic!(),
+            };
+
+            if target == id {
+                // Action on self (1 fighter)
+                action.execute_self(active.deref_mut());
+            } else {
+                // Action on a different fighter (2 fighters)
+                let mut target =  match self.fighters.iter().find(|(fID, _)| *fID == target) {
+                    Some((_, x)) => match x.try_borrow_mut() {
+                        Ok(mut f) => f,
+                        Err(_) => panic!("Active fighter already borrowed."),
+                    },
+                    None => panic!(),
+                };
+                action.execute(active.deref_mut(), target.deref_mut());
+            }
         }
 
         return None;
@@ -101,9 +131,7 @@ pub const MAX_TURNS: u8 = 50;
 
 #[test]
 fn default_rule() {
-    let f = fighter::dummy_fighter();
-    let fighters = vec![(FighterID::Ally(0), f)];
-    let fight = Fight { turn: 0, fighters };
+    let fight = Fight::build_fight(vec![fighter::dummy_fighter()], vec![]);
 
     let (_, f0) = fight.fighters.get(0).unwrap();
     assert_eq!(&f0.get_rule(&fight), &AllRules::Default.new());
@@ -114,7 +142,8 @@ fn every_two_turn() {
     let mut f = fighter::dummy_fighter();
     f.set_rules(vec![AllRules::Attack2.new()]);
 
-    let fight = Fight { turn: 2, fighters: vec![(FighterID::Ally(0), f)] };
+    let mut fight = Fight::build_fight(vec![f], vec![]);
+    fight.turn = 2;
 
     let (_, fighter) = fight.fighters.get(0).unwrap();
     assert_eq!(&fighter.get_rule(&fight), &AllRules::Attack2.new());
@@ -130,12 +159,7 @@ fn max_turns() {
 
 #[test]
 fn order_by_speed() {
-    let mut fight = Fight {
-        turn: 0,
-        fighters: vec![
-            (FighterID::Ally(0), fighter::dummy_foe()),
-            (FighterID::Enemy(0), fighter::dummy_fighter())],
-    };
+    let mut fight = Fight::build_fight(vec![dummy_foe()], vec![dummy_fighter()]);
 
     {
         let (_, f0) = fight.fighters.get(0).unwrap();

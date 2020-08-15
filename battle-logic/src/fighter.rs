@@ -41,6 +41,10 @@ impl Fighter {
         println!("Turn of {}.", self.name)
     }
 
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
+
     pub fn get_stat(&self, stat: &runes::Stat) -> u16 {
         match stat {
             Stat::Health => self.stats.health,
