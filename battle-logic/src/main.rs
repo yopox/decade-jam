@@ -3,11 +3,11 @@ use crate::fighter::Fighter;
 mod equipment;
 mod fight;
 mod fighter;
-mod runes;
 mod predefined;
+mod runes;
 
-use predefined::rules::AllRules;
 use crate::fight::State;
+use predefined::rules::AllRules;
 
 fn main() {
     let mut f1 = fighter::dummy_fighter();

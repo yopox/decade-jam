@@ -2,15 +2,15 @@ use std::iter::Filter;
 use std::slice::Iter;
 
 use crate::fighter;
-use crate::fighter::{Fighter, dummy_foe, dummy_fighter};
+use crate::fighter::{dummy_fighter, dummy_foe, Fighter};
 use crate::predefined;
 use crate::predefined::rules::AllRules;
 use crate::predefined::spells::AllSpells;
 use crate::predefined::weapons::AllWeapons;
 use crate::runes;
 use crate::runes::{Stat, Target};
-use std::cell::{RefCell, Ref, BorrowMutError, RefMut};
 use std::borrow::Borrow;
+use std::cell::{BorrowMutError, Ref, RefCell, RefMut};
 use std::ops::{Deref, DerefMut};
 
 #[derive(Debug, PartialEq)]
@@ -55,12 +55,14 @@ impl Fight {
 
     pub fn build_fight(mut team1: Vec<Fighter>, mut team2: Vec<Fighter>) -> Fight {
         let mut fighters = Vec::new();
-        team1.into_iter().enumerate().for_each(|(i, f)| fighters.push(
-            (FighterID::Ally(i), RefCell::new(f))
-        ));
-        team2.into_iter().enumerate().for_each(|(i, f)| fighters.push(
-            (FighterID::Enemy(i), RefCell::new(f))
-        ));
+        team1
+            .into_iter()
+            .enumerate()
+            .for_each(|(i, f)| fighters.push((FighterID::Ally(i), RefCell::new(f))));
+        team2
+            .into_iter()
+            .enumerate()
+            .for_each(|(i, f)| fighters.push((FighterID::Enemy(i), RefCell::new(f))));
 
         Fight { turn: 0, fighters }
     }
@@ -74,12 +76,15 @@ impl Fight {
         println!("Turn {}", self.turn);
 
         // Order fighters by speed
-        self.fighters.sort_by_key(|(id, fighter)| fighter.borrow().deref().get_stat(&Stat::Speed));
+        self.fighters
+            .sort_by_key(|(id, fighter)| fighter.borrow().deref().get_stat(&Stat::Speed));
         self.fighters.reverse();
 
         // Get turns order
         let mut turn_order = Vec::new();
-        self.fighters.iter().for_each(|(id, _)| turn_order.push(id.clone()));
+        self.fighters
+            .iter()
+            .for_each(|(id, _)| turn_order.push(id.clone()));
 
         let mut state: Option<State> = None;
 
@@ -92,7 +97,9 @@ impl Fight {
                         None => panic!("Tried to get &Fighter from wrong FighterID."),
                     };
 
-                    if !active.alive { continue; }
+                    if !active.alive {
+                        continue;
+                    }
                     active.deref().get_rule(self)
                 };
 
@@ -126,23 +133,31 @@ impl Fight {
             }
 
             state = self.check_state();
-            if state != None { break }
+            if state != None {
+                break;
+            }
         }
 
         return state;
     }
 
     pub fn check_state(&self) -> Option<State> {
-        if self.fighters.iter()
+        if self
+            .fighters
+            .iter()
             .filter(|(id, _)| !id.is_ally())
-            .all(|(_, f)| !f.borrow().alive ) {
-            return Some(State::AlliesVictory)
-        } else if self.fighters.iter()
+            .all(|(_, f)| !f.borrow().alive)
+        {
+            return Some(State::AlliesVictory);
+        } else if self
+            .fighters
+            .iter()
             .filter(|(id, _)| id.is_ally())
-            .all(|(_, f)| !f.borrow().alive ) {
-            return Some(State::EnemiesVictory)
+            .all(|(_, f)| !f.borrow().alive)
+        {
+            return Some(State::EnemiesVictory);
         }
-        return None
+        return None;
     }
 }
 

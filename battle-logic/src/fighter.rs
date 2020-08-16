@@ -1,10 +1,10 @@
-use crate::{fight, runes};
 use crate::equipment::Weapon;
 use crate::predefined;
 use crate::predefined::rules::AllRules;
 use crate::predefined::spells::AllSpells;
 use crate::predefined::weapons::AllWeapons;
 use crate::runes::{Action, Rule, Stat};
+use crate::{fight, runes};
 
 struct Stats {
     health: u16,
@@ -74,7 +74,9 @@ impl Fighter {
     }
 
     pub fn check_hp(&mut self) {
-        if !self.alive { return }
+        if !self.alive {
+            return;
+        }
 
         if self.stats.health <= 0 {
             self.alive = false;

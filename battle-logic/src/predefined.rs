@@ -2,9 +2,9 @@ use crate::fighter;
 use crate::runes;
 
 pub mod rules {
-    use crate::predefined::*;
     use crate::predefined::spells::AllSpells;
     use crate::predefined::weapons::AllWeapons;
+    use crate::predefined::*;
     use crate::runes::*;
 
     pub enum AllRules {
@@ -46,7 +46,7 @@ pub mod weapons {
     use crate::equipment::{Effect, Weapon};
 
     pub enum AllWeapons {
-        WoodenSword
+        WoodenSword,
     }
 
     impl AllWeapons {
@@ -59,8 +59,11 @@ pub mod weapons {
         match name {
             AllWeapons::WoodenSword => Weapon {
                 name: String::from("Wooden Sword"),
-                effects: vec![Effect::PhysicalAttack { on_self: false, damage: 5 }],
-            }
+                effects: vec![Effect::PhysicalAttack {
+                    on_self: false,
+                    damage: 5,
+                }],
+            },
         }
     }
 }
@@ -69,7 +72,7 @@ pub mod spells {
     use crate::equipment::{Effect, Spell};
 
     pub enum AllSpells {
-        Fireball
+        Fireball,
     }
 
     impl AllSpells {
@@ -82,8 +85,11 @@ pub mod spells {
         match name {
             AllSpells::Fireball => Spell {
                 name: String::from("Fireball"),
-                effects: vec![Effect::PhysicalAttack { on_self: false, damage: 5 }],
-            }
+                effects: vec![Effect::PhysicalAttack {
+                    on_self: false,
+                    damage: 5,
+                }],
+            },
         }
     }
 }

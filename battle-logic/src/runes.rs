@@ -1,6 +1,6 @@
-use crate::{fight, fighter};
 use crate::equipment;
 use crate::fight::{Fight, FighterID};
+use crate::{fight, fighter};
 use std::ops::Deref;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -95,9 +95,13 @@ impl Condition {
 
 impl Target {
     pub fn resolve(&self, active: &fight::FighterID, fight: &fight::Fight) -> fight::FighterID {
-        let allies = fight.fighters.iter()
+        let allies = fight
+            .fighters
+            .iter()
             .filter(|(id, _)| id.is_ally() == active.is_ally());
-        let enemies = fight.fighters.iter()
+        let enemies = fight
+            .fighters
+            .iter()
             .filter(|(id, _)| id.is_ally() != active.is_ally());
 
         match self {
@@ -105,25 +109,25 @@ impl Target {
             Target::AllyMost(stat) => {
                 match allies.max_by_key(|(_, f)| f.borrow().deref().get_stat(stat)) {
                     Some((id, _)) => id.clone(),
-                    None => FighterID::None
+                    None => FighterID::None,
                 }
             }
             Target::AllyLess(stat) => {
                 match allies.min_by_key(|(_, f)| f.borrow().deref().get_stat(stat)) {
                     Some((id, _)) => id.clone(),
-                    None => FighterID::None
+                    None => FighterID::None,
                 }
             }
             Target::FoeMost(stat) => {
                 match enemies.max_by_key(|(_, f)| f.borrow().deref().get_stat(stat)) {
                     Some((id, _)) => id.clone(),
-                    None => FighterID::None
+                    None => FighterID::None,
                 }
             }
             Target::FoeLess(stat) => {
                 match enemies.min_by_key(|(_, f)| f.borrow().deref().get_stat(stat)) {
                     Some((id, _)) => id.clone(),
-                    None => FighterID::None
+                    None => FighterID::None,
                 }
             }
         }
@@ -134,13 +138,17 @@ impl Action {
     pub fn get_target(&self, active: &fight::FighterID, fight: &fight::Fight) -> fight::FighterID {
         match self {
             Action::Wait | Action::Defense => active.clone(),
-            Action::Attack(_, target) |
-            Action::Spell(_, target) => target.resolve(active, fight),
+            Action::Attack(_, target) | Action::Spell(_, target) => target.resolve(active, fight),
         }
     }
 
     pub fn execute(&self, active: &mut fighter::Fighter, target: &mut fighter::Fighter) {
-        println!("{:?} uses {:?} on {:?}.", active.get_name(), self, target.get_name());
+        println!(
+            "{:?} uses {:?} on {:?}.",
+            active.get_name(),
+            self,
+            target.get_name()
+        );
         match self {
             Action::Wait | Action::Defense => panic!("Can't use this action on another fighter."),
             Action::Attack(weapon, _) => weapon.use_on_target(active, target),
