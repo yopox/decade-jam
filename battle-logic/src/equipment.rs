@@ -10,8 +10,7 @@ pub enum Effect {
 }
 
 impl Effect {
-
-    pub fn on_self(&self) -> bool {
+    pub fn apply_on_self(&self, source: &mut Fighter) -> bool {
         *match self {
             Effect::PhysicalAttack { on_self, damage: _ } => on_self,
             Effect::MagicalAttack { on_self, damage: _ } => on_self,
@@ -20,10 +19,13 @@ impl Effect {
         }
     }
 
-    pub fn apply(&self, source: &mut Fighter, target: &mut Fighter) {
+    pub fn apply_on_target(&self, source: &mut Fighter, target: &mut Fighter) {
         match self {
             Effect::PhysicalAttack { on_self, damage } => {
+                if !target.alive { return }
+
                 target.damage(*damage);
+                target.check_hp();
             }
             Effect::MagicalAttack { on_self, damage } => {}
             Effect::Heal { on_self, amount, duration } => {}
@@ -36,6 +38,20 @@ impl Effect {
 pub struct Weapon {
     pub name: String,
     pub effects: Vec<Effect>,
+}
+
+impl Weapon {
+    pub fn use_on_target(&self, source: &mut Fighter, target: &mut Fighter) {
+        for effect in &self.effects {
+            effect.apply_on_target(source, target);
+        }
+    }
+
+    pub fn use_on_self(&self, source: &mut Fighter) {
+        for effect in &self.effects {
+            effect.apply_on_self(source);
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]

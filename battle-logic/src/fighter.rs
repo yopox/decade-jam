@@ -72,6 +72,15 @@ impl Fighter {
     pub(crate) fn damage(&mut self, amount: u16) {
         self.stats.health -= amount;
     }
+
+    pub fn check_hp(&mut self) {
+        if !self.alive { return }
+
+        if self.stats.health <= 0 {
+            self.alive = false;
+            self.stats.health = 0;
+        }
+    }
 }
 
 pub fn dummy_fighter() -> Fighter {

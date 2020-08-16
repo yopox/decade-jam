@@ -141,6 +141,11 @@ impl Action {
 
     pub fn execute(&self, active: &mut fighter::Fighter, target: &mut fighter::Fighter) {
         println!("{:?} uses {:?} on {:?}.", active.get_name(), self, target.get_name());
+        match self {
+            Action::Wait | Action::Defense => panic!("Can't use this action on another fighter."),
+            Action::Attack(weapon, _) => weapon.use_on_target(active, target),
+            Action::Spell(spell, _) => (),
+        }
     }
 
     pub fn execute_self(&self, active: &mut fighter::Fighter) {

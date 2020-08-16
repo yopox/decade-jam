@@ -81,49 +81,68 @@ impl Fight {
         let mut turn_order = Vec::new();
         self.fighters.iter().for_each(|(id, _)| turn_order.push(id.clone()));
 
-        for id in turn_order {
+        let mut state: Option<State> = None;
 
-            // Resolve rule, action, target for the turn
-            let rule = {
-                let active = match self.fighters.iter().find(|(fID, _)| *fID == id) {
-                    Some((_, x)) => x.borrow(),
-                    None => panic!("Tried to get &Fighter from wrong FighterID."),
+        for id in turn_order {
+            {
+                // Resolve rule, action, target for the turn
+                let rule = {
+                    let active = match self.fighters.iter().find(|(fID, _)| *fID == id) {
+                        Some((_, x)) => x.borrow(),
+                        None => panic!("Tried to get &Fighter from wrong FighterID."),
+                    };
+
+                    if !active.alive { continue; }
+                    active.deref().get_rule(self)
                 };
 
-                if !active.alive { continue; }
-                active.deref().get_rule(self)
-            };
+                let action = rule.get_action();
+                let target = action.get_target(&id, &self);
 
-            let action = rule.get_action();
-            let target = action.get_target(&id, &self);
+                // Execute the action
 
-            // Execute the action
-
-            let mut active = match self.fighters.iter().find(|(fID, _)| *fID == id) {
-                Some((_, x)) => match x.try_borrow_mut() {
-                    Ok(mut f) => f,
-                    Err(_) => panic!("Active fighter already borrowed."),
-                },
-                None => panic!(),
-            };
-
-            if target == id {
-                // Action on self (1 fighter)
-                action.execute_self(active.deref_mut());
-            } else {
-                // Action on a different fighter (2 fighters)
-                let mut target =  match self.fighters.iter().find(|(fID, _)| *fID == target) {
+                let mut active = match self.fighters.iter().find(|(fID, _)| *fID == id) {
                     Some((_, x)) => match x.try_borrow_mut() {
                         Ok(mut f) => f,
                         Err(_) => panic!("Active fighter already borrowed."),
                     },
                     None => panic!(),
                 };
-                action.execute(active.deref_mut(), target.deref_mut());
+
+                if target == id {
+                    // Action on self (1 fighter)
+                    action.execute_self(active.deref_mut());
+                } else {
+                    // Action on a different fighter (2 fighters)
+                    let mut target = match self.fighters.iter().find(|(fID, _)| *fID == target) {
+                        Some((_, x)) => match x.try_borrow_mut() {
+                            Ok(mut f) => f,
+                            Err(_) => panic!("Active fighter already borrowed."),
+                        },
+                        None => panic!(),
+                    };
+                    action.execute(active.deref_mut(), target.deref_mut());
+                }
             }
+
+            state = self.check_state();
+            if state != None { break }
         }
 
-        return None;
+        return state;
+    }
+
+    pub fn check_state(&self) -> Option<State> {
+        if self.fighters.iter()
+            .filter(|(id, _)| !id.is_ally())
+            .all(|(_, f)| !f.borrow().alive ) {
+            return Some(State::AlliesVictory)
+        } else if self.fighters.iter()
+            .filter(|(id, _)| id.is_ally())
+            .all(|(_, f)| !f.borrow().alive ) {
+            return Some(State::EnemiesVictory)
+        }
+        return None
     }
 }
 
