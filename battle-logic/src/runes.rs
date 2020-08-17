@@ -43,7 +43,6 @@ pub enum Target {
 #[derive(Debug, PartialEq, Clone)]
 pub enum Stat {
     Health,
-    Mana,
     Attack,
     Defense,
     Wisdom,

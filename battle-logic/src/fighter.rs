@@ -8,7 +8,6 @@ use crate::{fight, runes};
 
 struct Stats {
     health: u16,
-    mana: u16,
     attack: u16,
     defense: u16,
     wisdom: u16,
@@ -25,7 +24,7 @@ pub enum Status {
 pub struct Fighter {
     name: String,
     stats: Stats,
-    pub alive: bool,
+    alive: bool,
     rules: Vec<runes::Rule>,
     default_rule: Rule,
 }
@@ -48,7 +47,6 @@ impl Fighter {
     pub fn get_stat(&self, stat: &runes::Stat) -> u16 {
         match stat {
             Stat::Health => self.stats.health,
-            Stat::Mana => self.stats.mana,
             Stat::Attack => self.stats.attack,
             Stat::Defense => self.stats.defense,
             Stat::Wisdom => self.stats.wisdom,
@@ -67,6 +65,10 @@ impl Fighter {
 
     pub fn set_rules(&mut self, rules: Vec<runes::Rule>) {
         self.rules = rules;
+    }
+
+    pub fn is_alive(&self) -> bool {
+        self.alive
     }
 
     pub(crate) fn damage(&mut self, amount: u16) {
@@ -90,7 +92,6 @@ pub fn dummy_fighter() -> Fighter {
         name: "Arches".to_string(),
         stats: Stats {
             health: 10,
-            mana: 0,
             attack: 10,
             defense: 0,
             speed: 10,

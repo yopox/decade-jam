@@ -97,7 +97,7 @@ impl Fight {
                         None => panic!("Tried to get &Fighter from wrong FighterID."),
                     };
 
-                    if !active.alive {
+                    if !active.is_alive() {
                         continue;
                     }
                     active.deref().get_rule(self)
@@ -146,14 +146,14 @@ impl Fight {
             .fighters
             .iter()
             .filter(|(id, _)| !id.is_ally())
-            .all(|(_, f)| !f.borrow().alive)
+            .all(|(_, f)| !f.borrow().is_alive())
         {
             return Some(State::AlliesVictory);
         } else if self
             .fighters
             .iter()
             .filter(|(id, _)| id.is_ally())
-            .all(|(_, f)| !f.borrow().alive)
+            .all(|(_, f)| !f.borrow().is_alive())
         {
             return Some(State::EnemiesVictory);
         }
@@ -168,7 +168,7 @@ fn default_rule() {
     let fight = Fight::build_fight(vec![fighter::dummy_fighter()], vec![]);
 
     let (_, f0) = fight.fighters.get(0).unwrap();
-    assert_eq!(&f0.get_rule(&fight), &AllRules::Default.new());
+    assert_eq!(&f0.borrow().deref().get_rule(&fight), &AllRules::Default.new());
 }
 
 #[test]
@@ -180,7 +180,7 @@ fn every_two_turn() {
     fight.turn = 2;
 
     let (_, fighter) = fight.fighters.get(0).unwrap();
-    assert_eq!(&fighter.get_rule(&fight), &AllRules::Attack2.new());
+    assert_eq!(&fighter.borrow().deref().get_rule(&fight), &AllRules::Attack2.new());
 }
 
 #[test]
@@ -198,8 +198,8 @@ fn order_by_speed() {
     {
         let (_, f0) = fight.fighters.get(0).unwrap();
         let (_, f1) = fight.fighters.get(1).unwrap();
-        assert_eq!(f0.get_stat(&Stat::Speed), 5);
-        assert_eq!(f1.get_stat(&Stat::Speed), 10);
+        assert_eq!(f0.borrow().deref().get_stat(&Stat::Speed), 5);
+        assert_eq!(f1.borrow().deref().get_stat(&Stat::Speed), 10);
     }
 
     fight.turn();
@@ -207,7 +207,7 @@ fn order_by_speed() {
     {
         let (_, f0) = fight.fighters.get(0).unwrap();
         let (_, f1) = fight.fighters.get(1).unwrap();
-        assert_eq!(f0.get_stat(&Stat::Speed), 10);
-        assert_eq!(f1.get_stat(&Stat::Speed), 5);
+        assert_eq!(f0.borrow().deref().get_stat(&Stat::Speed), 10);
+        assert_eq!(f1.borrow().deref().get_stat(&Stat::Speed), 5);
     }
 }

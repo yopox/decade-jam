@@ -46,7 +46,7 @@ impl Effect {
     pub fn apply_on_target(&self, source: &mut Fighter, target: &mut Fighter) {
         match self {
             Effect::PhysicalAttack { on_self, damage } => {
-                if !target.alive {
+                if !target.is_alive() {
                     return;
                 }
 
