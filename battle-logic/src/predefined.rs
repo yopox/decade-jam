@@ -43,8 +43,8 @@ pub mod rules {
 }
 
 pub mod weapons {
-    use crate::equipment::{Effect, Weapon};
     use crate::equipment::Element::Natural;
+    use crate::equipment::{Effect, Weapon};
 
     pub enum AllWeapons {
         WoodenSword,
@@ -71,8 +71,8 @@ pub mod weapons {
 }
 
 pub mod spells {
-    use crate::equipment::{Effect, Spell};
     use crate::equipment::Element::Demonic;
+    use crate::equipment::{Effect, Spell};
 
     pub enum AllSpells {
         Fireball,

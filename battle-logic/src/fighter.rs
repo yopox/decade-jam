@@ -1,4 +1,4 @@
-use crate::equipment::Weapon;
+use crate::equipment::{Element, Spell, Weapon};
 use crate::predefined;
 use crate::predefined::rules::AllRules;
 use crate::predefined::spells::AllSpells;
@@ -71,18 +71,53 @@ impl Fighter {
         self.alive
     }
 
-    pub(crate) fn damage(&mut self, amount: u16) {
-        self.stats.health -= amount;
+    pub fn get_elemental_physical_attack(&self, element: &Element) -> u16 {
+        match element {
+            Element::Neutral => self.stats.attack,
+            Element::Demonic => (self.stats.attack + self.stats.demon) / 2,
+            Element::Natural => (self.stats.attack + self.stats.nature) / 2,
+        }
     }
 
-    pub fn check_hp(&mut self) {
-        if !self.alive {
-            return;
+    pub fn get_elemental_physical_defense(&self, element: &Element) -> u16 {
+        match element {
+            Element::Neutral => self.stats.defense,
+            Element::Demonic => {
+                (self.stats.defense + diff(self.stats.demon, self.stats.nature) * 2) / 3
+            }
+            Element::Natural => {
+                (self.stats.defense + diff(self.stats.nature, self.stats.demon) * 2) / 3
+            }
         }
+    }
 
-        if self.stats.health <= 0 {
-            self.alive = false;
+    pub fn get_elemental_magical_attack(&self, element: &Element) -> u16 {
+        match element {
+            Element::Neutral => self.stats.wisdom,
+            Element::Demonic => (self.stats.wisdom + self.stats.demon) / 2,
+            Element::Natural => (self.stats.wisdom + self.stats.nature) / 2,
+        }
+    }
+
+    pub fn get_elemental_magical_defense(&self, element: &Element) -> u16 {
+        match element {
+            Element::Neutral => self.stats.defense,
+            Element::Demonic => {
+                (self.stats.defense + diff(self.stats.demon, self.stats.nature) * 2) / 3
+            }
+            Element::Natural => {
+                (self.stats.defense + diff(self.stats.nature, self.stats.demon) * 2) / 3
+            }
+        }
+    }
+
+    pub(crate) fn damage(&mut self, attack: u16, defense: u16) {
+        let damage = attack * (1 + 3 * (attack + 1) / (attack + defense + 1)) / 4;
+        if damage > self.stats.health {
             self.stats.health = 0;
+            self.alive = false
+        } else {
+            self.stats.health -= damage;
         }
     }
 }
@@ -91,9 +126,9 @@ pub fn dummy_fighter() -> Fighter {
     Fighter {
         name: "Arches".to_string(),
         stats: Stats {
-            health: 10,
+            health: 40,
             attack: 10,
-            defense: 0,
+            defense: 5,
             speed: 10,
             wisdom: 0,
             nature: 0,
@@ -110,4 +145,11 @@ pub fn dummy_foe() -> Fighter {
     foe.name = "Azazel".to_string();
     foe.stats.speed = 5;
     return foe;
+}
+
+fn diff(x: u16, y: u16) -> u16 {
+    match x < y {
+        true => 0,
+        false => x - y,
+    }
 }

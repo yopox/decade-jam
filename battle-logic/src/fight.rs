@@ -168,7 +168,10 @@ fn default_rule() {
     let fight = Fight::build_fight(vec![fighter::dummy_fighter()], vec![]);
 
     let (_, f0) = fight.fighters.get(0).unwrap();
-    assert_eq!(&f0.borrow().deref().get_rule(&fight), &AllRules::Default.new());
+    assert_eq!(
+        &f0.borrow().deref().get_rule(&fight),
+        &AllRules::Default.new()
+    );
 }
 
 #[test]
@@ -180,7 +183,10 @@ fn every_two_turn() {
     fight.turn = 2;
 
     let (_, fighter) = fight.fighters.get(0).unwrap();
-    assert_eq!(&fighter.borrow().deref().get_rule(&fight), &AllRules::Attack2.new());
+    assert_eq!(
+        &fighter.borrow().deref().get_rule(&fight),
+        &AllRules::Attack2.new()
+    );
 }
 
 #[test]

@@ -1,8 +1,8 @@
 use crate::equipment;
+use crate::equipment::Usable;
 use crate::fight::{Fight, FighterID};
 use crate::{fight, fighter};
 use std::ops::Deref;
-use crate::equipment::Usable;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Rule {

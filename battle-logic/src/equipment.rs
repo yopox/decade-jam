@@ -5,7 +5,7 @@ use crate::runes::Stat;
 pub enum Element {
     Neutral,
     Demonic,
-    Natural
+    Natural,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -39,9 +39,23 @@ impl Effect {
             return;
         }
 
-        *match self {
-            Effect::PhysicalAttack { on_self, element, damage: _ } => (),
-            Effect::MagicalAttack { on_self, element, damage: _ } => (),
+        match self {
+            Effect::PhysicalAttack {
+                on_self: _,
+                element,
+                damage: damage,
+            } => source.damage(
+                source.get_elemental_physical_attack(element) + *damage,
+                source.get_elemental_physical_defense(element),
+            ),
+            Effect::MagicalAttack {
+                on_self: _,
+                element,
+                damage: damage,
+            } => source.damage(
+                source.get_elemental_magical_attack(element) + *damage,
+                source.get_elemental_magical_defense(element),
+            ),
             Effect::Heal {
                 on_self,
                 amount: _,
@@ -62,12 +76,34 @@ impl Effect {
         }
 
         match self {
-            Effect::PhysicalAttack { on_self, element, damage } => {
-
-                target.damage(*damage);
-                target.check_hp();
-            }
-            Effect::MagicalAttack { on_self, element, damage } => {}
+            Effect::PhysicalAttack {
+                on_self,
+                element,
+                damage,
+            } => match on_self {
+                true => source.damage(
+                    source.get_elemental_physical_attack(element) + *damage,
+                    source.get_elemental_physical_defense(element),
+                ),
+                false => target.damage(
+                    source.get_elemental_physical_attack(element) + *damage,
+                    target.get_elemental_physical_defense(element),
+                ),
+            },
+            Effect::MagicalAttack {
+                on_self,
+                element,
+                damage,
+            } => match on_self {
+                true => source.damage(
+                    source.get_elemental_magical_attack(element) + *damage,
+                    source.get_elemental_magical_defense(element),
+                ),
+                false => target.damage(
+                    source.get_elemental_magical_attack(element) + *damage,
+                    target.get_elemental_magical_defense(element),
+                ),
+            },
             Effect::Heal {
                 on_self,
                 amount,
