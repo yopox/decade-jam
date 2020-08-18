@@ -69,23 +69,31 @@ impl Effect {
     }
 }
 
+pub trait Usable {
+    fn get_effects(&self) -> &Vec<Effect>;
+
+    fn use_on_target(&self, source: &mut Fighter, target: &mut Fighter) {
+        for effect in self.get_effects() {
+            effect.apply_on_target(source, target);
+        }
+    }
+
+    fn use_on_self(&self, source: &mut Fighter) {
+        for effect in self.get_effects() {
+            effect.apply_on_self(source);
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct Weapon {
     pub name: String,
     pub effects: Vec<Effect>,
 }
 
-impl Weapon {
-    pub fn use_on_target(&self, source: &mut Fighter, target: &mut Fighter) {
-        for effect in &self.effects {
-            effect.apply_on_target(source, target);
-        }
-    }
-
-    pub fn use_on_self(&self, source: &mut Fighter) {
-        for effect in &self.effects {
-            effect.apply_on_self(source);
-        }
+impl Usable for Weapon {
+    fn get_effects(&self) -> &Vec<Effect> {
+        &self.effects
     }
 }
 
@@ -93,4 +101,10 @@ impl Weapon {
 pub struct Spell {
     pub name: String,
     pub effects: Vec<Effect>,
+}
+
+impl Usable for Spell {
+    fn get_effects(&self) -> &Vec<Effect> {
+        &self.effects
+    }
 }

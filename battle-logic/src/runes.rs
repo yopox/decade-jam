@@ -2,6 +2,7 @@ use crate::equipment;
 use crate::fight::{Fight, FighterID};
 use crate::{fight, fighter};
 use std::ops::Deref;
+use crate::equipment::Usable;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Rule {
@@ -143,7 +144,7 @@ impl Action {
 
     pub fn execute(&self, active: &mut fighter::Fighter, target: &mut fighter::Fighter) {
         println!(
-            "{:?} uses {:?} on {:?}.",
+            "\t{:} : {:?} ({:}).",
             active.get_name(),
             self,
             target.get_name()
@@ -151,11 +152,11 @@ impl Action {
         match self {
             Action::Wait | Action::Defense => panic!("Can't use this action on another fighter."),
             Action::Attack(weapon, _) => weapon.use_on_target(active, target),
-            Action::Spell(spell, _) => (),
+            Action::Spell(spell, _) => spell.use_on_target(active, target),
         }
     }
 
     pub fn execute_self(&self, active: &mut fighter::Fighter) {
-        println!("{:?} uses {:?}.", active.get_name(), self);
+        println!("\t{:} : {:?} (self).", active.get_name(), self);
     }
 }
