@@ -95,6 +95,7 @@ impl Condition {
 
 impl Target {
     pub fn resolve(&self, active: &fight::FighterID, fight: &fight::Fight) -> fight::FighterID {
+        // TODO: Optimize by filtering only if needed
         let allies = fight
             .fighters
             .iter()

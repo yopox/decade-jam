@@ -2,13 +2,22 @@ use crate::fighter::Fighter;
 use crate::runes::Stat;
 
 #[derive(Debug, PartialEq, Clone)]
+pub enum Element {
+    Neutral,
+    Demonic,
+    Natural
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum Effect {
     PhysicalAttack {
         on_self: bool,
+        element: Element,
         damage: u16,
     },
     MagicalAttack {
         on_self: bool,
+        element: Element,
         damage: u16,
     },
     Heal {
@@ -25,35 +34,40 @@ pub enum Effect {
 }
 
 impl Effect {
-    pub fn apply_on_self(&self, source: &mut Fighter) -> bool {
+    pub fn apply_on_self(&self, source: &mut Fighter) {
+        if !source.is_alive() {
+            return;
+        }
+
         *match self {
-            Effect::PhysicalAttack { on_self, damage: _ } => on_self,
-            Effect::MagicalAttack { on_self, damage: _ } => on_self,
+            Effect::PhysicalAttack { on_self, element, damage: _ } => (),
+            Effect::MagicalAttack { on_self, element, damage: _ } => (),
             Effect::Heal {
                 on_self,
                 amount: _,
                 duration: _,
-            } => on_self,
+            } => (),
             Effect::Boost {
                 on_self,
                 stat: _,
                 amount: _,
                 duration: _,
-            } => on_self,
+            } => (),
         }
     }
 
     pub fn apply_on_target(&self, source: &mut Fighter, target: &mut Fighter) {
+        if !target.is_alive() {
+            return;
+        }
+
         match self {
-            Effect::PhysicalAttack { on_self, damage } => {
-                if !target.is_alive() {
-                    return;
-                }
+            Effect::PhysicalAttack { on_self, element, damage } => {
 
                 target.damage(*damage);
                 target.check_hp();
             }
-            Effect::MagicalAttack { on_self, damage } => {}
+            Effect::MagicalAttack { on_self, element, damage } => {}
             Effect::Heal {
                 on_self,
                 amount,

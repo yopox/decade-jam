@@ -44,6 +44,7 @@ pub mod rules {
 
 pub mod weapons {
     use crate::equipment::{Effect, Weapon};
+    use crate::equipment::Element::Natural;
 
     pub enum AllWeapons {
         WoodenSword,
@@ -61,6 +62,7 @@ pub mod weapons {
                 name: String::from("Wooden Sword"),
                 effects: vec![Effect::PhysicalAttack {
                     on_self: false,
+                    element: Natural,
                     damage: 5,
                 }],
             },
@@ -70,6 +72,7 @@ pub mod weapons {
 
 pub mod spells {
     use crate::equipment::{Effect, Spell};
+    use crate::equipment::Element::Demonic;
 
     pub enum AllSpells {
         Fireball,
@@ -87,6 +90,7 @@ pub mod spells {
                 name: String::from("Fireball"),
                 effects: vec![Effect::PhysicalAttack {
                     on_self: false,
+                    element: Demonic,
                     damage: 5,
                 }],
             },
