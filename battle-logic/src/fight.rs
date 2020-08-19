@@ -90,6 +90,19 @@ impl Fight {
 
         for id in turn_order {
             {
+                // Start of teh turn logic
+                {
+                    let mut active = match self.fighters.iter().find(|(fID, _)| *fID == id) {
+                        Some((_, x)) => match x.try_borrow_mut() {
+                            Ok(mut f) => f,
+                            Err(_) => panic!("Active fighter already borrowed."),
+                        },
+                        None => panic!(),
+                    };
+                    active.turn();
+                }
+
+
                 // Resolve rule, action, target for the turn
                 let rule = {
                     let active = match self.fighters.iter().find(|(fID, _)| *fID == id) {

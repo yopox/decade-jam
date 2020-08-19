@@ -6,7 +6,8 @@ use crate::predefined::weapons::AllWeapons;
 use crate::runes::{Action, Rule, Stat};
 use crate::{fight, runes};
 
-struct Stats {
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct Stats {
     health: u16,
     attack: u16,
     defense: u16,
@@ -16,6 +17,29 @@ struct Stats {
     demon: u16,
 }
 
+impl Stats {
+    pub fn new() -> Stats {
+        Stats {
+            health: 0,
+            attack: 0,
+            defense: 0,
+            wisdom: 0,
+            speed: 0,
+            nature: 0,
+            demon: 0,
+        }
+    }
+
+    pub fn reset(&mut self, base: Stats) {
+        self.attack = base.attack;
+        self.defense = base.defense;
+        self.wisdom = base.wisdom;
+        self.speed = base.speed;
+        self.nature = base.nature;
+        self.demon = base.demon;
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Status {
     Poisoned,
@@ -23,6 +47,7 @@ pub enum Status {
 
 pub struct Fighter {
     name: String,
+    base_stats: Stats,
     stats: Stats,
     alive: bool,
     rules: Vec<runes::Rule>,
@@ -36,8 +61,20 @@ pub enum DamageType {
 }
 
 impl Fighter {
-    pub fn turn(&mut self, status: &mut fight::Fight) {
-        println!("Turn of {}.", self.name)
+    pub fn new(name: String, base_stats: Stats) -> Fighter {
+        Fighter {
+            name,
+            base_stats,
+            stats: base_stats,
+            alive: true,
+            rules: vec![],
+            default_rule: Rule::default(),
+        }
+    }
+
+    pub fn turn(&mut self) {
+        println!("\tTurn of {}.", self.name);
+        self.stats.reset(self.base_stats);
     }
 
     pub fn get_name(&self) -> &String {
@@ -114,36 +151,36 @@ impl Fighter {
     pub(crate) fn damage(&mut self, attack: u16, defense: u16) {
         let damage = attack * (1 + 3 * (attack + 1) / (attack + defense + 1)) / 4;
         if damage > self.stats.health {
+            println!("\t\t{} lost {}HP…", &self.name, self.stats.health);
             self.stats.health = 0;
-            self.alive = false
+            self.alive = false;
+            println!("\t\t{} is dead:", &self.name);
         } else {
             self.stats.health -= damage;
+            println!("\t\t{} lost {}HP:", &self.name, damage);
         }
     }
 }
 
 pub fn dummy_fighter() -> Fighter {
-    Fighter {
-        name: "Arches".to_string(),
-        stats: Stats {
-            health: 40,
-            attack: 10,
-            defense: 5,
-            speed: 10,
+    Fighter::new(
+        String::from("Arches"),
+        Stats {
+            health: 20,
+            attack: 5,
+            defense: 2,
             wisdom: 0,
+            speed: 0,
             nature: 0,
             demon: 0,
-        },
-        alive: true,
-        rules: Vec::new(),
-        default_rule: AllRules::Default.new(),
-    }
+        }
+    )
 }
 
 pub fn dummy_foe() -> Fighter {
     let mut foe = dummy_fighter();
     foe.name = "Azazel".to_string();
-    foe.stats.speed = 5;
+    foe.base_stats.speed = 5;
     return foe;
 }
 

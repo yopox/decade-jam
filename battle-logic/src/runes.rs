@@ -145,8 +145,7 @@ impl Action {
 
     pub fn execute(&self, active: &mut fighter::Fighter, target: &mut fighter::Fighter) {
         println!(
-            "\t{:} : {:?} ({:}).",
-            active.get_name(),
+            "\t\t{:?} ({:}).",
             self,
             target.get_name()
         );
@@ -158,6 +157,6 @@ impl Action {
     }
 
     pub fn execute_self(&self, active: &mut fighter::Fighter) {
-        println!("\t{:} : {:?} (self).", active.get_name(), self);
+        println!("\t\t{:?} (self).", self);
     }
 }

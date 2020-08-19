@@ -1,5 +1,7 @@
 use crate::fighter;
 use crate::runes;
+use crate::runes::Rule;
+use crate::predefined::rules::AllRules;
 
 pub mod rules {
     use crate::predefined::spells::AllSpells;
@@ -40,6 +42,10 @@ pub mod rules {
             ),
         }
     }
+}
+
+impl Default for Rule {
+    fn default() -> Self { AllRules::Default.new() }
 }
 
 pub mod weapons {
