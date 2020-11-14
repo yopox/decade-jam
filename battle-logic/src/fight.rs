@@ -8,7 +8,7 @@ use crate::predefined::rules::AllRules;
 use crate::predefined::spells::AllSpells;
 use crate::predefined::weapons::AllWeapons;
 use crate::runes;
-use crate::runes::{Stat, Target};
+use crate::runes::{Stat, Target, Rule};
 use std::borrow::Borrow;
 use std::cell::{BorrowMutError, Ref, RefCell, RefMut};
 use std::ops::{Deref, DerefMut};
@@ -76,8 +76,7 @@ impl Fight {
         println!("Turn {}", self.turn);
 
         // Order fighters by speed
-        self.fighters
-            .sort_by_key(|(id, fighter)| fighter.borrow().deref().get_stat(&Stat::Speed));
+        self.fighters.sort_by_key(|(id, fighter)| fighter.borrow().deref().get_stat(&Stat::Speed));
         self.fighters.reverse();
 
         // Get turns order
@@ -90,57 +89,24 @@ impl Fight {
 
         for id in turn_order {
             {
-                // Start of teh turn logic
-                {
-                    let mut active = match self.fighters.iter().find(|(fID, _)| *fID == id) {
-                        Some((_, x)) => match x.try_borrow_mut() {
-                            Ok(mut f) => f,
-                            Err(_) => panic!("Active fighter already borrowed."),
-                        },
-                        None => panic!(),
-                    };
-                    active.turn();
-                }
-
+                // Start of turn logic
+                self.start_turn(id);
 
                 // Resolve rule, action, target for the turn
-                let rule = {
-                    let active = match self.fighters.iter().find(|(fID, _)| *fID == id) {
-                        Some((_, x)) => x.borrow(),
-                        None => panic!("Tried to get &Fighter from wrong FighterID."),
-                    };
-
-                    if !active.is_alive() {
-                        continue;
-                    }
-                    active.deref().get_rule(self)
-                };
+                let rule = self.get_active_rule(id);
+                if rule == None { continue; };
+                let rule = rule.unwrap();
 
                 let action = rule.get_action();
                 let target = action.get_target(&id, &self);
 
                 // Execute the action
-
-                let mut active = match self.fighters.iter().find(|(fID, _)| *fID == id) {
-                    Some((_, x)) => match x.try_borrow_mut() {
-                        Ok(mut f) => f,
-                        Err(_) => panic!("Active fighter already borrowed."),
-                    },
-                    None => panic!(),
-                };
-
                 if target == id {
                     // Action on self (1 fighter)
-                    action.execute_self(active.deref_mut());
+                    action.execute_self(self.get_fighter(id).deref_mut());
                 } else {
                     // Action on a different fighter (2 fighters)
-                    let mut target = match self.fighters.iter().find(|(fID, _)| *fID == target) {
-                        Some((_, x)) => match x.try_borrow_mut() {
-                            Ok(mut f) => f,
-                            Err(_) => panic!("Active fighter already borrowed."),
-                        },
-                        None => panic!(),
-                    };
+                    let (mut active, mut target) = self.get_fighters(id, target);
                     action.execute(active.deref_mut(), target.deref_mut());
                 }
             }
@@ -152,6 +118,28 @@ impl Fight {
         }
 
         return state;
+    }
+
+    fn start_turn(&mut self, id: FighterID) {
+        let mut active = self.get_fighter(id);
+        active.turn();
+    }
+
+    fn get_fighter(&mut self, id: FighterID) -> RefMut<Fighter> {
+        self.fighters.iter().find(|(fID, _)| *fID == id).unwrap().1.borrow_mut()
+    }
+
+    fn get_fighters(&mut self, id1: FighterID, id2: FighterID) -> (RefMut<Fighter>, RefMut<Fighter>) {
+        (self.fighters.iter().find(|(fID, _)| *fID == id1).unwrap().1.borrow_mut(),
+         self.fighters.iter().find(|(fID, _)| *fID == id2).unwrap().1.borrow_mut())
+    }
+
+    fn get_active_rule(&mut self, id: FighterID) -> Option<Rule> {
+        let active = self.fighters.iter().find(|(fID, _)| *fID == id).unwrap().1.borrow_mut();
+        match active.is_alive() {
+            true => Some(active.deref().get_rule(self)),
+            false => None,
+        }
     }
 
     pub fn check_state(&self) -> Option<State> {
