@@ -43,7 +43,7 @@ impl Effect {
             Effect::PhysicalAttack {
                 on_self: _,
                 element,
-                damage: damage,
+                damage,
             } => source.damage(
                 source.get_elemental_physical_attack(element) + *damage,
                 source.get_elemental_physical_defense(element),
@@ -51,7 +51,7 @@ impl Effect {
             Effect::MagicalAttack {
                 on_self: _,
                 element,
-                damage: damage,
+                damage,
             } => source.damage(
                 source.get_elemental_magical_attack(element) + *damage,
                 source.get_elemental_magical_defense(element),
