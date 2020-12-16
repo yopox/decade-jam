@@ -44,18 +44,20 @@ impl Effect {
                 on_self: _,
                 element,
                 damage,
-            } => source.damage(
-                source.get_elemental_physical_attack(element) + *damage,
-                source.get_elemental_physical_defense(element),
-            ),
+            } => {
+                let attack = source.physical_attack(element);
+                let defense = source.physical_defense(element);
+                source.damage(*damage, attack, defense);
+            },
             Effect::MagicalAttack {
                 on_self: _,
                 element,
                 damage,
-            } => source.damage(
-                source.get_elemental_magical_attack(element) + *damage,
-                source.get_elemental_magical_defense(element),
-            ),
+            } => {
+                let attack = source.magical_attack(element);
+                let defense = source.magical_defense(element);
+                source.damage(*damage, attack, defense);
+            },
             Effect::Heal {
                 on_self,
                 amount: _,
@@ -81,28 +83,32 @@ impl Effect {
                 element,
                 damage,
             } => match on_self {
-                true => source.damage(
-                    source.get_elemental_physical_attack(element) + *damage,
-                    source.get_elemental_physical_defense(element),
-                ),
-                false => target.damage(
-                    source.get_elemental_physical_attack(element) + *damage,
-                    target.get_elemental_physical_defense(element),
-                ),
+                true => {
+                    let attack = source.physical_attack(element);
+                    let defense = source.physical_defense(element);
+                    source.damage(*damage, attack, defense);
+                },
+                false => {
+                    let attack = source.physical_attack(element);
+                    let defense = target.physical_defense(element);
+                    target.damage(*damage, attack, defense);
+                },
             },
             Effect::MagicalAttack {
                 on_self,
                 element,
                 damage,
             } => match on_self {
-                true => source.damage(
-                    source.get_elemental_magical_attack(element) + *damage,
-                    source.get_elemental_magical_defense(element),
-                ),
-                false => target.damage(
-                    source.get_elemental_magical_attack(element) + *damage,
-                    target.get_elemental_magical_defense(element),
-                ),
+                true => {
+                    let attack = source.physical_attack(element);
+                    let defense = source.physical_defense(element);
+                    source.damage(*damage, attack, defense);
+                },
+                false => {
+                    let attack = source.physical_attack(element);
+                    let defense = target.physical_defense(element);
+                    target.damage(*damage, attack, defense);
+                },
             },
             Effect::Heal {
                 on_self,

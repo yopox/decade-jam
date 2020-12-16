@@ -38,6 +38,44 @@ impl Stats {
         self.nature = base.nature;
         self.demon = base.demon;
     }
+
+    fn calc(&self, weights: StatWeights) -> u16 {
+        let product = (self.attack as i64 * weights.attack as i64 +
+        self.defense as i64 * weights.defense as i64 +
+        self.wisdom as i64 * weights.wisdom as i64 +
+        self.speed as i64 * weights.speed as i64 +
+        self.nature as i64 * weights.nature as i64 +
+        self.demon as i64 * weights.demon as i64) / weights.sum() as i64;
+        if product < 0 { return 0 }
+        return product as u16
+    }
+}
+
+pub struct StatWeights {
+    attack: i8,
+    defense: i8,
+    wisdom: i8,
+    speed: i8,
+    nature: i8,
+    demon: i8,
+}
+
+impl StatWeights {
+    pub fn new(atk: i8, def: i8, wis: i8, spd: i8, nat: i8, dem: i8) -> Self {
+        StatWeights {
+            attack: atk,
+            defense: def,
+            wisdom: wis,
+            speed: spd,
+            nature: nat,
+            demon: dem,
+        }
+    }
+
+    pub fn sum(&self) -> u8 {
+        let pon = |x: i8| if x < 0 { 0 } else { x as u8 };
+        pon(self.attack) + pon(self.defense) + pon(self.wisdom) + pon(self.speed) + pon(self.nature) + pon(self.demon)
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -73,7 +111,7 @@ impl Fighter {
     }
 
     pub fn turn(&mut self) {
-        println!("\tTurn of {}.", self.name);
+        println!("\tTurn of {} — {}HP", self.name, &self.stats.health);
         self.stats.reset(self.base_stats);
     }
 
@@ -108,56 +146,60 @@ impl Fighter {
         self.alive
     }
 
-    pub fn get_elemental_physical_attack(&self, element: &Element) -> u16 {
-        match element {
-            Element::Neutral => self.stats.attack,
-            Element::Demonic => (self.stats.attack + self.stats.demon) / 2,
-            Element::Natural => (self.stats.attack + self.stats.nature) / 2,
-        }
-    }
-
-    pub fn get_elemental_physical_defense(&self, element: &Element) -> u16 {
-        match element {
-            Element::Neutral => self.stats.defense,
-            Element::Demonic => {
-                (self.stats.defense + diff(self.stats.demon, self.stats.nature) * 2) / 3
-            }
-            Element::Natural => {
-                (self.stats.defense + diff(self.stats.nature, self.stats.demon) * 2) / 3
-            }
-        }
-    }
-
-    pub fn get_elemental_magical_attack(&self, element: &Element) -> u16 {
-        match element {
-            Element::Neutral => self.stats.wisdom,
-            Element::Demonic => (self.stats.wisdom + self.stats.demon) / 2,
-            Element::Natural => (self.stats.wisdom + self.stats.nature) / 2,
-        }
-    }
-
-    pub fn get_elemental_magical_defense(&self, element: &Element) -> u16 {
-        match element {
-            Element::Neutral => self.stats.defense,
-            Element::Demonic => {
-                (self.stats.defense + diff(self.stats.demon, self.stats.nature) * 2) / 3
-            }
-            Element::Natural => {
-                (self.stats.defense + diff(self.stats.nature, self.stats.demon) * 2) / 3
-            }
-        }
-    }
-
-    pub(crate) fn damage(&mut self, attack: u16, defense: u16) {
-        let damage = attack * (1 + 3 * (attack + 1) / (attack + defense + 1)) / 4;
-        if damage > self.stats.health {
+    pub(crate) fn damage(&mut self, amount: u16, attack: u16, defense: u16) {
+        let damage = amount * (attack + 1) / (attack + defense + 1);
+        if damage >= self.stats.health {
             println!("\t\t{} lost {}HP…", &self.name, self.stats.health);
             self.stats.health = 0;
             self.alive = false;
-            println!("\t\t{} is dead:", &self.name);
+            println!("\t\t{} is dead!", &self.name);
         } else {
             self.stats.health -= damage;
-            println!("\t\t{} lost {}HP:", &self.name, damage);
+            println!("\t\t{} lost {}HP!", &self.name, damage);
+        }
+    }
+
+    pub fn physical_attack(&self, element: &Element) -> u16 {
+        let neutral = StatWeights::new(4, 0, 0, 1, 0, 0);
+        let nature = StatWeights::new(4, 0, 0, 0, -1, 4);
+        let demon = StatWeights::new(4, 0, 0, 0, 4, -1);
+        match element {
+            Element::Neutral => self.stats.calc(neutral),
+            Element::Natural => self.stats.calc(nature),
+            Element::Demonic => self.stats.calc(demon),
+        }
+    }
+
+    pub fn physical_defense(&self, element: &Element) -> u16 {
+        let neutral = StatWeights::new(0, 1, 0, 0, 0, 0);
+        let nature = StatWeights::new(0, 4, 0, 0, 2, -2);
+        let demon = StatWeights::new(0, 4, 0, 0, -2, 2);
+        match element {
+            Element::Neutral => self.stats.calc(neutral),
+            Element::Natural => self.stats.calc(nature),
+            Element::Demonic => self.stats.calc(demon),
+        }
+    }
+
+    pub fn magical_attack(&self, element: &Element) -> u16 {
+        let neutral = StatWeights::new(1, 0, 4, 0, 0, 0);
+        let nature = StatWeights::new(1, 0, 4, 0, -1, 4);
+        let demon = StatWeights::new(1, 0, 4, 0, 4, -1);
+        match element {
+            Element::Neutral => self.stats.calc(neutral),
+            Element::Natural => self.stats.calc(nature),
+            Element::Demonic => self.stats.calc(demon),
+        }
+    }
+
+    pub fn magical_defense(&self, element: &Element) -> u16 {
+        let neutral = StatWeights::new(0, 1, 1, 0, 0, 0);
+        let nature = StatWeights::new(0, 1, 1, 0, 1, -1);
+        let demon = StatWeights::new(0, 1, 1, 0, -1, 1);
+        match element {
+            Element::Neutral => self.stats.calc(neutral),
+            Element::Natural => self.stats.calc(nature),
+            Element::Demonic => self.stats.calc(demon),
         }
     }
 }
@@ -167,7 +209,7 @@ pub fn dummy_fighter() -> Fighter {
         String::from("Arches"),
         Stats {
             health: 20,
-            attack: 5,
+            attack: 10,
             defense: 2,
             wisdom: 0,
             speed: 0,
@@ -181,6 +223,7 @@ pub fn dummy_foe() -> Fighter {
     let mut foe = dummy_fighter();
     foe.name = "Azazel".to_string();
     foe.base_stats.speed = 5;
+    foe.base_stats.defense = 5;
     return foe;
 }
 

@@ -9,7 +9,6 @@ use crate::predefined::spells::AllSpells;
 use crate::predefined::weapons::AllWeapons;
 use crate::runes;
 use crate::runes::{Stat, Target, Rule};
-use std::borrow::Borrow;
 use std::cell::{BorrowMutError, Ref, RefCell, RefMut};
 use std::ops::{Deref, DerefMut};
 

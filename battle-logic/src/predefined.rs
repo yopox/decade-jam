@@ -69,7 +69,7 @@ pub mod weapons {
                 effects: vec![Effect::PhysicalAttack {
                     on_self: false,
                     element: Natural,
-                    damage: 5,
+                    damage: 10,
                 }],
             },
         }
