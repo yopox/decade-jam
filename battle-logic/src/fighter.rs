@@ -1,10 +1,10 @@
-use crate::equipment::{Element, Spell, Weapon};
+use crate::{fight, rune};
+use crate::effect::Consequence;
+use crate::equipment::{Element, Weapon};
 use crate::predefined;
 use crate::predefined::rules::AllRules;
-use crate::predefined::spells::AllSpells;
 use crate::predefined::weapons::AllWeapons;
-use crate::runes::{Action, Rule, Stat};
-use crate::{fight, runes};
+use crate::rune::{Action, Rule, Stat};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Stats {
@@ -41,13 +41,13 @@ impl Stats {
 
     fn calc(&self, weights: StatWeights) -> u16 {
         let product = (self.attack as i64 * weights.attack as i64 +
-        self.defense as i64 * weights.defense as i64 +
-        self.wisdom as i64 * weights.wisdom as i64 +
-        self.speed as i64 * weights.speed as i64 +
-        self.nature as i64 * weights.nature as i64 +
-        self.demon as i64 * weights.demon as i64) / weights.sum() as i64;
-        if product < 0 { return 0 }
-        return product as u16
+            self.defense as i64 * weights.defense as i64 +
+            self.wisdom as i64 * weights.wisdom as i64 +
+            self.speed as i64 * weights.speed as i64 +
+            self.nature as i64 * weights.nature as i64 +
+            self.demon as i64 * weights.demon as i64) / weights.sum() as i64;
+        if product < 0 { return 0; }
+        return product as u16;
     }
 }
 
@@ -88,7 +88,7 @@ pub struct Fighter {
     base_stats: Stats,
     stats: Stats,
     alive: bool,
-    rules: Vec<runes::Rule>,
+    rules: Vec<rune::Rule>,
     default_rule: Rule,
 }
 
@@ -119,7 +119,7 @@ impl Fighter {
         &self.name
     }
 
-    pub fn get_stat(&self, stat: &runes::Stat) -> u16 {
+    pub fn get_stat(&self, stat: &rune::Stat) -> u16 {
         match stat {
             Stat::Health => self.stats.health,
             Stat::Attack => self.stats.attack,
@@ -138,7 +138,7 @@ impl Fighter {
         };
     }
 
-    pub fn set_rules(&mut self, rules: Vec<runes::Rule>) {
+    pub fn set_rules(&mut self, rules: Vec<rune::Rule>) {
         self.rules = rules;
     }
 
@@ -146,7 +146,7 @@ impl Fighter {
         self.alive
     }
 
-    pub(crate) fn damage(&mut self, amount: u16, attack: u16, defense: u16) {
+    pub(crate) fn damage(&mut self, attack: u16, defense: u16, amount: u16) {
         let damage = amount * (attack + 1) / (attack + defense + 1);
         if damage >= self.stats.health {
             println!("\t\t{} lost {}HP…", &self.name, self.stats.health);
@@ -202,6 +202,14 @@ impl Fighter {
             Element::Demonic => self.stats.calc(demon),
         }
     }
+
+    pub fn defense(&self) -> Consequence {
+        Consequence::Buff {
+            stat: Stat::Defense,
+            amount: self.base_stats.defense as i32,
+            duration: 0,
+        }
+    }
 }
 
 pub fn dummy_fighter() -> Fighter {
@@ -215,7 +223,7 @@ pub fn dummy_fighter() -> Fighter {
             speed: 0,
             nature: 0,
             demon: 0,
-        }
+        },
     )
 }
 

@@ -1,16 +1,14 @@
+use std::cell::{BorrowMutError, Ref, RefCell, RefMut};
 use std::iter::Filter;
+use std::ops::{Deref, DerefMut};
 use std::slice::Iter;
 
+use crate::effect::Consequence;
 use crate::fighter;
 use crate::fighter::{dummy_fighter, dummy_foe, Fighter};
-use crate::predefined;
 use crate::predefined::rules::AllRules;
-use crate::predefined::spells::AllSpells;
-use crate::predefined::weapons::AllWeapons;
-use crate::runes;
-use crate::runes::{Stat, Target, Rule};
-use std::cell::{BorrowMutError, Ref, RefCell, RefMut};
-use std::ops::{Deref, DerefMut};
+use crate::rune;
+use crate::rune::{Rule, Stat, Target};
 
 #[derive(Debug, PartialEq)]
 pub enum State {
@@ -35,13 +33,15 @@ impl FighterID {
     }
 }
 
+pub const MAX_TURNS: u8 = 50;
+
 pub struct Fight {
     pub turn: u8,
     pub fighters: Vec<(FighterID, RefCell<fighter::Fighter>)>,
 }
 
 impl Fight {
-    pub fn start(mut team1: Vec<Fighter>, mut team2: Vec<Fighter>) -> State {
+    pub fn start(team1: Vec<Fighter>, team2: Vec<Fighter>) -> State {
         let mut fight = Fight::build_fight(team1, team2);
 
         loop {
@@ -52,7 +52,7 @@ impl Fight {
         }
     }
 
-    pub fn build_fight(mut team1: Vec<Fighter>, mut team2: Vec<Fighter>) -> Fight {
+    pub fn build_fight(team1: Vec<Fighter>, team2: Vec<Fighter>) -> Fight {
         let mut fighters = Vec::new();
         team1
             .into_iter()
@@ -87,8 +87,8 @@ impl Fight {
         let mut state: Option<State> = None;
 
         for id in turn_order {
-            {
-                let mut active = self.get_fighter(id);
+            let (action, target) = {
+                let mut active = self.get_fighter_mut(id);
                 if !active.is_alive() { continue; };
 
                 // Start of turn logic
@@ -96,18 +96,20 @@ impl Fight {
 
                 // Resolve rule, action, target for the turn
                 let rule = active.get_rule(&self);
-                let action = rule.get_action();
+                let action = rule.get_action().clone();
                 let target = action.get_target(&id, &self);
+                (action, target)
+            };
 
-                // Execute the action
-                if target == id {
-                    // Action on self (1 fighter)
-                    action.execute_self(active.deref_mut());
-                } else {
-                    // Action on a different fighter (2 fighters)
-                    let mut target = self.get_fighter(target);
-                    action.execute(active.deref_mut(), target.deref_mut());
-                }
+            let consequences = {
+                action.execute(self.get_fighter(id).deref(), self.get_fighter(target).deref())
+            };
+
+            for (on_self, consequence) in consequences {
+                match on_self {
+                    true => consequence.apply_on(self.get_fighter_mut(id).deref_mut()),
+                    _ => consequence.apply_on(self.get_fighter_mut(target).deref_mut()),
+                };
             }
 
             state = self.check_state();
@@ -119,7 +121,11 @@ impl Fight {
         return state;
     }
 
-    fn get_fighter(&self, id: FighterID) -> RefMut<Fighter> {
+    fn get_fighter(&self, id: FighterID) -> Ref<Fighter> {
+        self.fighters.iter().find(|(f_id, _)| *f_id == id).unwrap().1.borrow()
+    }
+
+    fn get_fighter_mut(&self, id: FighterID) -> RefMut<Fighter> {
         self.fighters.iter().find(|(f_id, _)| *f_id == id).unwrap().1.borrow_mut()
     }
 
@@ -140,8 +146,6 @@ impl Fight {
         return None;
     }
 }
-
-pub const MAX_TURNS: u8 = 50;
 
 #[test]
 fn default_rule() {

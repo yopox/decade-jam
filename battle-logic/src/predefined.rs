@@ -1,20 +1,18 @@
 use crate::fighter;
-use crate::runes;
-use crate::runes::Rule;
 use crate::predefined::rules::AllRules;
+use crate::rune;
+use crate::rune::Rule;
 
 pub mod rules {
-    use crate::predefined::spells::AllSpells;
-    use crate::predefined::weapons::AllWeapons;
     use crate::predefined::*;
-    use crate::runes::*;
+    use crate::predefined::weapons::AllWeapons;
+    use crate::rune::*;
 
     pub enum AllRules {
         Default,
         Defense,
         Attack2,
         Careful,
-        Magician,
     }
 
     impl AllRules {
@@ -36,10 +34,6 @@ pub mod rules {
                 Condition::LessXHP(30, Target::Them),
                 Action::Defense,
             ),
-            AllRules::Magician => Rule::Id(
-                Condition::EveryXTurn(3),
-                Action::Spell(AllSpells::Fireball.new(), Target::FoeLess(Stat::Health)),
-            ),
         }
     }
 }
@@ -49,11 +43,15 @@ impl Default for Rule {
 }
 
 pub mod weapons {
-    use crate::equipment::Element::Natural;
-    use crate::equipment::{Effect, Weapon};
+    use crate::effect::{Consequence, Effect};
+    use crate::equipment::AttackType::{Magical, Physical};
+    use crate::equipment::Element::{Demonic, Natural};
+    use crate::equipment::Weapon;
+    use crate::rune::Stat;
 
     pub enum AllWeapons {
         WoodenSword,
+        FireRod,
     }
 
     impl AllWeapons {
@@ -66,38 +64,27 @@ pub mod weapons {
         match name {
             AllWeapons::WoodenSword => Weapon {
                 name: String::from("Wooden Sword"),
-                effects: vec![Effect::PhysicalAttack {
+                effects: vec![Effect::Attack {
                     on_self: false,
+                    attack_type: Physical,
                     element: Natural,
                     damage: 10,
                 }],
             },
-        }
-    }
-}
-
-pub mod spells {
-    use crate::equipment::Element::Demonic;
-    use crate::equipment::{Effect, Spell};
-
-    pub enum AllSpells {
-        Fireball,
-    }
-
-    impl AllSpells {
-        pub fn new(self) -> Spell {
-            get(self)
-        }
-    }
-
-    fn get(name: AllSpells) -> Spell {
-        match name {
-            AllSpells::Fireball => Spell {
-                name: String::from("Fireball"),
-                effects: vec![Effect::PhysicalAttack {
+            AllWeapons::FireRod => Weapon {
+                name: String::from("Fire Rod"),
+                effects: vec![Effect::Attack {
                     on_self: false,
+                    attack_type: Magical,
                     element: Demonic,
-                    damage: 5,
+                    damage: 15,
+                }, Effect::Boost {
+                    on_self: false,
+                    consequence: Consequence::Buff {
+                        stat: Stat::Defense,
+                        amount: -5,
+                        duration: 1,
+                    },
                 }],
             },
         }

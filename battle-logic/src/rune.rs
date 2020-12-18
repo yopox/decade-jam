@@ -1,8 +1,10 @@
+use std::ops::Deref;
+
+use crate::{fight, fighter};
+use crate::effect::Consequence;
 use crate::equipment;
 use crate::equipment::Usable;
 use crate::fight::{Fight, FighterID};
-use crate::{fight, fighter};
-use std::ops::Deref;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Rule {
@@ -28,7 +30,6 @@ pub enum Condition {
 pub enum Action {
     Attack(equipment::Weapon, Target),
     Defense,
-    Spell(equipment::Spell, Target),
     Wait,
 }
 
@@ -139,24 +140,22 @@ impl Action {
     pub fn get_target(&self, active: &fight::FighterID, fight: &fight::Fight) -> fight::FighterID {
         match self {
             Action::Wait | Action::Defense => active.clone(),
-            Action::Attack(_, target) | Action::Spell(_, target) => target.resolve(active, fight),
+            Action::Attack(_, target) => target.resolve(active, fight),
         }
     }
 
-    pub fn execute(&self, active: &mut fighter::Fighter, target: &mut fighter::Fighter) {
+    pub fn execute(&self, active: &fighter::Fighter, target: &fighter::Fighter) -> Vec<(bool, Consequence)> {
         println!(
             "\t\t{:?} ({:}).",
             self,
             target.get_name()
         );
+        let mut consequences = vec![];
         match self {
-            Action::Wait | Action::Defense => panic!("Can't use this action on another fighter."),
-            Action::Attack(weapon, _) => weapon.use_on_target(active, target),
-            Action::Spell(spell, _) => spell.use_on_target(active, target),
+            Action::Wait => (),
+            Action::Defense => consequences.push((true, active.defense())),
+            Action::Attack(weapon, _) => consequences.append(&mut weapon.use_on_target(active, target)),
         }
-    }
-
-    pub fn execute_self(&self, active: &mut fighter::Fighter) {
-        println!("\t\t{:?} (self).", self);
+        return consequences;
     }
 }
