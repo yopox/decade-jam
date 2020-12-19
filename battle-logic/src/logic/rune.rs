@@ -4,13 +4,14 @@ use crate::logic_prelude::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Rule {
-    Id(Condition, Action),
-    Not(Condition, Action),
-    And(Condition, Condition, Action),
-    Nand(Condition, Condition, Action),
-    Or(Condition, Condition, Action),
-    Xor(Condition, Condition, Action),
-    Nor(Condition, Condition, Action),
+    ID(Condition, Action),
+    NOT(Condition, Action),
+    AND(Condition, Condition, Action),
+    NAND(Condition, Condition, Action),
+    OR(Condition, Condition, Action),
+    XOR(Condition, Condition, Action),
+    NOR(Condition, Condition, Action),
+    NXOR(Condition, Condition, Action),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -52,28 +53,31 @@ pub enum Stat {
 impl Rule {
     pub fn check(&self, status: &Fight) -> bool {
         match self {
-            Rule::Id(cond, _) => cond.check(status),
-            Rule::Not(cond, _) => !cond.check(status),
-            Rule::And(cond1, cond2, _) => cond1.check(status) && cond2.check(status),
-            Rule::Nand(cond1, cond2, _) => !(cond1.check(status) && cond2.check(status)),
-            Rule::Or(cond1, cond2, _) => cond1.check(status) || cond2.check(status),
-            Rule::Xor(cond1, cond2, _) => {
+            Rule::ID(cond, _) => cond.check(status),
+            Rule::NOT(cond, _) => !cond.check(status),
+            Rule::AND(cond1, cond2, _) => cond1.check(status) && cond2.check(status),
+            Rule::NAND(cond1, cond2, _) => !(cond1.check(status) && cond2.check(status)),
+            Rule::OR(cond1, cond2, _) => cond1.check(status) || cond2.check(status),
+            Rule::XOR(cond1, cond2, _) => {
                 (cond1.check(status) && !cond2.check(status))
                     || (!cond1.check(status) && cond2.check(status))
             }
-            Rule::Nor(cond1, cond2, _) => !(cond1.check(status) || cond2.check(status)),
+            Rule::NOR(cond1, cond2, _) => !(cond1.check(status) || cond2.check(status)),
+            Rule::NXOR(cond1, cond2, _) => (!cond1.check(status) && !cond2.check(status))
+                || (cond1.check(status) || cond2.check(status)),
         }
     }
 
     pub fn get_action(&self) -> &Action {
         match self {
-            Rule::Id(_, action) => action,
-            Rule::Not(_, action) => action,
-            Rule::And(_, _, action) => action,
-            Rule::Nand(_, _, action) => action,
-            Rule::Or(_, _, action) => action,
-            Rule::Xor(_, _, action) => action,
-            Rule::Nor(_, _, action) => action,
+            Rule::ID(_, action) => action,
+            Rule::NOT(_, action) => action,
+            Rule::AND(_, _, action) => action,
+            Rule::NAND(_, _, action) => action,
+            Rule::OR(_, _, action) => action,
+            Rule::XOR(_, _, action) => action,
+            Rule::NOR(_, _, action) => action,
+            Rule::NXOR(_, _, action) => action,
         }
     }
 }
