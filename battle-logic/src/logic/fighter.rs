@@ -1,10 +1,4 @@
-use crate::{fight, rune};
-use crate::effect::Consequence;
-use crate::equipment::{Element, Weapon};
-use crate::predefined;
-use crate::predefined::rules::AllRules;
-use crate::predefined::weapons::AllWeapons;
-use crate::rune::{Action, Rule, Stat};
+use crate::logic_prelude::*;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Stats {
@@ -18,16 +12,8 @@ pub struct Stats {
 }
 
 impl Stats {
-    pub fn new() -> Stats {
-        Stats {
-            health: 0,
-            attack: 0,
-            defense: 0,
-            wisdom: 0,
-            speed: 0,
-            nature: 0,
-            demon: 0,
-        }
+    pub fn new(health: u16, attack: u16, defense: u16, wisdom: u16, speed: u16, nature: u16, demon: u16) -> Stats {
+        Stats { health, attack, defense, wisdom, speed, nature, demon }
     }
 
     pub fn reset(&mut self, base: Stats) {
@@ -88,26 +74,13 @@ pub struct Fighter {
     base_stats: Stats,
     stats: Stats,
     alive: bool,
-    rules: Vec<rune::Rule>,
+    rules: Vec<Rule>,
     default_rule: Rule,
 }
 
-pub enum DamageType {
-    NEUTRAL,
-    NATURE,
-    DEMON,
-}
-
 impl Fighter {
-    pub fn new(name: String, base_stats: Stats) -> Fighter {
-        Fighter {
-            name,
-            base_stats,
-            stats: base_stats,
-            alive: true,
-            rules: vec![],
-            default_rule: Rule::default(),
-        }
+    pub fn new(name: String, stats: Stats, rules: Vec<Rule>, default_rule: Rule) -> Self {
+        Fighter { name, base_stats: stats.clone(), stats: stats.clone(), alive: true, rules, default_rule }
     }
 
     pub fn turn(&mut self) {
@@ -119,7 +92,7 @@ impl Fighter {
         &self.name
     }
 
-    pub fn get_stat(&self, stat: &rune::Stat) -> u16 {
+    pub fn get_stat(&self, stat: &Stat) -> u16 {
         match stat {
             Stat::Health => self.stats.health,
             Stat::Attack => self.stats.attack,
@@ -131,14 +104,14 @@ impl Fighter {
         }
     }
 
-    pub fn get_rule(&self, status: &fight::Fight) -> Rule {
+    pub fn get_rule(&self, status: &Fight) -> Rule {
         return match self.rules.iter().find(|rule| rule.check(status)) {
             Some(rule) => rule.clone(),
             None => self.default_rule.clone(),
         };
     }
 
-    pub fn set_rules(&mut self, rules: Vec<rune::Rule>) {
+    pub fn set_rules(&mut self, rules: Vec<Rule>) {
         self.rules = rules;
     }
 
@@ -209,35 +182,5 @@ impl Fighter {
             amount: self.base_stats.defense as i32,
             duration: 0,
         }
-    }
-}
-
-pub fn dummy_fighter() -> Fighter {
-    Fighter::new(
-        String::from("Arches"),
-        Stats {
-            health: 20,
-            attack: 10,
-            defense: 2,
-            wisdom: 0,
-            speed: 0,
-            nature: 0,
-            demon: 0,
-        },
-    )
-}
-
-pub fn dummy_foe() -> Fighter {
-    let mut foe = dummy_fighter();
-    foe.name = "Azazel".to_string();
-    foe.base_stats.speed = 5;
-    foe.base_stats.defense = 5;
-    return foe;
-}
-
-fn diff(x: u16, y: u16) -> u16 {
-    match x < y {
-        true => 0,
-        false => x - y,
     }
 }

@@ -1,10 +1,6 @@
 use std::ops::Deref;
 
-use crate::{fight, fighter};
-use crate::effect::Consequence;
-use crate::equipment;
-use crate::equipment::Usable;
-use crate::fight::{Fight, FighterID};
+use crate::logic_prelude::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Rule {
@@ -23,12 +19,12 @@ pub enum Condition {
     OnTurn(u8),
     LessXHP(u8, Target),
     MoreXHP(u8, Target),
-    HasStatus(Target, fighter::Status),
+    HasStatus(Target, Status),
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Action {
-    Attack(equipment::Weapon, Target),
+    Attack(Weapon, Target),
     Defense,
     Wait,
 }
@@ -95,7 +91,7 @@ impl Condition {
 }
 
 impl Target {
-    pub fn resolve(&self, active: &fight::FighterID, fight: &fight::Fight) -> fight::FighterID {
+    pub fn resolve(&self, active: &FighterID, fight: &Fight) -> FighterID {
         // TODO: Optimize by filtering only if needed
         let allies = fight
             .fighters
@@ -137,14 +133,14 @@ impl Target {
 }
 
 impl Action {
-    pub fn get_target(&self, active: &fight::FighterID, fight: &fight::Fight) -> fight::FighterID {
+    pub fn get_target(&self, active: &FighterID, fight: &Fight) -> FighterID {
         match self {
             Action::Wait | Action::Defense => active.clone(),
             Action::Attack(_, target) => target.resolve(active, fight),
         }
     }
 
-    pub fn execute(&self, active: &fighter::Fighter, target: &fighter::Fighter) -> Vec<(bool, Consequence)> {
+    pub fn execute(&self, active: &Fighter, target: &Fighter) -> Vec<(bool, Consequence)> {
         println!(
             "\t\t{:?} ({:}).",
             self,

@@ -1,6 +1,4 @@
-use crate::equipment::{AttackType, Element};
-use crate::fighter::Fighter;
-use crate::rune::Stat;
+use crate::logic_prelude::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Effect {

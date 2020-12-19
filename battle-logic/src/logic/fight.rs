@@ -3,12 +3,7 @@ use std::iter::Filter;
 use std::ops::{Deref, DerefMut};
 use std::slice::Iter;
 
-use crate::effect::Consequence;
-use crate::fighter;
-use crate::fighter::{dummy_fighter, dummy_foe, Fighter};
-use crate::predefined::rules::AllRules;
-use crate::rune;
-use crate::rune::{Rule, Stat, Target};
+use crate::logic_prelude::*;
 
 #[derive(Debug, PartialEq)]
 pub enum State {
@@ -37,7 +32,7 @@ pub const MAX_TURNS: u8 = 50;
 
 pub struct Fight {
     pub turn: u8,
-    pub fighters: Vec<(FighterID, RefCell<fighter::Fighter>)>,
+    pub fighters: Vec<(FighterID, RefCell<Fighter>)>,
 }
 
 impl Fight {
@@ -144,62 +139,5 @@ impl Fight {
             return Some(State::EnemiesVictory);
         }
         return None;
-    }
-}
-
-#[test]
-fn default_rule() {
-    let fight = Fight::build_fight(vec![fighter::dummy_fighter()], vec![]);
-
-    let (_, f0) = fight.fighters.get(0).unwrap();
-    assert_eq!(
-        &f0.borrow().deref().get_rule(&fight),
-        &AllRules::Default.new()
-    );
-}
-
-#[test]
-fn every_two_turn() {
-    let mut f = fighter::dummy_fighter();
-    f.set_rules(vec![AllRules::Attack2.new()]);
-
-    let mut fight = Fight::build_fight(vec![f], vec![]);
-    fight.turn = 2;
-
-    let (_, fighter) = fight.fighters.get(0).unwrap();
-    assert_eq!(
-        &fighter.borrow().deref().get_rule(&fight),
-        &AllRules::Attack2.new()
-    );
-}
-
-#[test]
-fn max_turns() {
-    let team1 = vec![fighter::dummy_fighter()];
-    let team2 = vec![fighter::dummy_foe()];
-
-    assert_eq!(Fight::start(team1, team2), State::Draw);
-}
-
-#[test]
-fn order_by_speed() {
-    let mut fight = Fight::build_fight(vec![dummy_fighter()], vec![dummy_foe()]);
-    let foe = dummy_foe().get_name().clone();
-    let fighter = dummy_fighter().get_name().clone();
-
-    {
-        let (_, f0) = fight.fighters.get(0).unwrap();
-        let (_, f1) = fight.fighters.get(1).unwrap();
-        assert_eq!(f0.borrow().deref().get_name(), &fighter);
-        assert_eq!(f1.borrow().deref().get_name(), &foe);
-    }
-
-    fight.turn();
-
-    {
-        let (_, f0) = fight.fighters.get(0).unwrap();
-        let (_, f1) = fight.fighters.get(1).unwrap();
-        assert_eq!(f0.borrow().deref().get_name(), &foe);
-        assert_eq!(f1.borrow().deref().get_name(), &fighter);
     }
 }

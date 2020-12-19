@@ -1,5 +1,4 @@
-use crate::effect::{Consequence, Effect};
-use crate::fighter::Fighter;
+use crate::logic_prelude::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Element {
