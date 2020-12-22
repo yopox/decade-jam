@@ -22,8 +22,8 @@ fn get(fighter: Fighters) -> Fighter {
         ),
         Fighters::Bat => Fighter::new(
             "Bat".to_string(),
-            Stats::new(30, 8, 6, 5, 8, 4, 8),
-            vec![Rules::Wait.new()],
+            Stats::new(30, 8, 10, 5, 8, 4, 8),
+            vec![Rules::Attack2.new()],
             Rules::Wait.new()
         )
     }

@@ -1,7 +1,5 @@
-use std::cell::{BorrowMutError, Ref, RefCell, RefMut};
-use std::iter::Filter;
+use std::cell::{Ref, RefCell, RefMut};
 use std::ops::{Deref, DerefMut};
-use std::slice::Iter;
 
 use crate::logic_prelude::*;
 
@@ -70,7 +68,7 @@ impl Fight {
         println!("Turn {}", self.turn);
 
         // Order fighters by speed
-        self.fighters.sort_by_key(|(id, fighter)| fighter.borrow().deref().get_stat(&Stat::Speed));
+        self.fighters.sort_by_key(|(_, fighter)| fighter.borrow().deref().get_stat(&Stat::Speed));
         self.fighters.reverse();
 
         // Get turns order

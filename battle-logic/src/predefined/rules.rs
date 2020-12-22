@@ -1,5 +1,6 @@
 use crate::logic_prelude::*;
 use crate::predefined_prelude::*;
+use std::rc::Rc;
 
 pub enum Rules {
     Wait,
@@ -20,7 +21,7 @@ fn get(name: Rules) -> Rule {
         Rules::Defense => Rule::ID(Condition::EveryXTurn(1), Action::Defense),
         Rules::Attack2 => Rule::ID(
             Condition::EveryXTurn(2),
-            Action::Attack(Weapons::WoodenSword.new(), Target::FoeLess(Stat::Health)),
+            Action::Attack(Rc::new(Swords::WoodenSword.new()), Target::FoeLess(Stat::Health)),
         ),
         Rules::Careful => Rule::AND(
             Condition::EveryXTurn(2),

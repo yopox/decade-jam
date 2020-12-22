@@ -1,8 +1,10 @@
+use std::fmt::Debug;
 use std::ops::Deref;
+use std::rc::Rc;
 
 use crate::logic_prelude::*;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Clone)]
 pub enum Rule {
     ID(Condition, Action),
     NOT(Condition, Action),
@@ -14,7 +16,7 @@ pub enum Rule {
     NXOR(Condition, Condition, Action),
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Clone)]
 pub enum Condition {
     EveryXTurn(u8),
     OnTurn(u8),
@@ -23,14 +25,14 @@ pub enum Condition {
     HasStatus(Target, Status),
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Clone)]
 pub enum Action {
-    Attack(Weapon, Target),
+    Attack(Rc<dyn Weapon>, Target),
     Defense,
     Wait,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 pub enum Target {
     Them,
     AllyMost(Stat),
@@ -39,7 +41,7 @@ pub enum Target {
     FoeLess(Stat),
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 pub enum Stat {
     Health,
     Attack,
@@ -137,6 +139,13 @@ impl Target {
 }
 
 impl Action {
+    pub fn name(&self) -> String {
+        match self {
+            Action::Attack(_, target) => format!("Attack {:?}", target),
+            Action::Defense => "Defense".to_string(),
+            Action::Wait => "Wait".to_string(),
+        }
+    }
     pub fn get_target(&self, active: &FighterID, fight: &Fight) -> FighterID {
         match self {
             Action::Wait | Action::Defense => active.clone(),
@@ -146,15 +155,15 @@ impl Action {
 
     pub fn execute(&self, active: &Fighter, target: &Fighter) -> Vec<(bool, Consequence)> {
         println!(
-            "\t\t{:?} ({:}).",
-            self,
+            "\t\t{:} ({:}).",
+            self.name(),
             target.get_name()
         );
         let mut consequences = vec![];
         match self {
             Action::Wait => (),
             Action::Defense => consequences.push((true, active.defense())),
-            Action::Attack(weapon, _) => consequences.append(&mut weapon.use_on_target(active, target)),
+            Action::Attack(weapon, _) => consequences.append(&mut weapon.use_weapon(active, target)),
         }
         return consequences;
     }

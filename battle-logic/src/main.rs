@@ -6,17 +6,16 @@ pub mod logic {
     pub mod fight;
     pub mod fighter;
     pub mod rune;
-    pub mod effect;
 }
 
 pub mod predefined {
     pub mod fighters;
     pub mod rules;
     pub mod weapons;
+    pub mod effects;
 }
 
 pub mod logic_prelude {
-    pub use crate::logic::effect::*;
     pub use crate::logic::equipment::*;
     pub use crate::logic::fight::*;
     pub use crate::logic::fighter::*;
@@ -27,6 +26,7 @@ pub mod predefined_prelude {
     pub use crate::predefined::fighters::*;
     pub use crate::predefined::rules::*;
     pub use crate::predefined::weapons::*;
+    pub use crate::predefined::effects::*;
 }
 
 fn main() {
