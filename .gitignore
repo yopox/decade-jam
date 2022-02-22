@@ -2,8 +2,6 @@
 *.cmo
 *.exe
 
-.idea
-
 */debug/
 */target/
 */Cargo.lock
