@@ -13,9 +13,15 @@ pub enum AttackType {
     Magical,
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub enum WeaponTarget {
+    Me,
+    Other,
+}
+
 pub trait Weapon {
     fn get_name(&self) -> String;
-    fn use_weapon(&self, user: &Fighter, target: &Fighter) -> Vec<(bool, Consequence)>;
+    fn use_weapon(&self, user: &Fighter, target: &Fighter) -> Vec<(WeaponTarget, Consequence)>;
 }
 
 #[derive(Clone)]

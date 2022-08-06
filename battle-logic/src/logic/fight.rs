@@ -100,8 +100,8 @@ impl Fight {
 
             for (on_self, consequence) in consequences {
                 match on_self {
-                    true => consequence.apply_on(self.get_fighter_mut(id).deref_mut()),
-                    _ => consequence.apply_on(self.get_fighter_mut(target).deref_mut()),
+                    WeaponTarget::Me => consequence.apply_on(self.get_fighter_mut(id).deref_mut()),
+                    WeaponTarget::Other => consequence.apply_on(self.get_fighter_mut(target).deref_mut()),
                 };
             }
 

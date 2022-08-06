@@ -3,7 +3,7 @@ use crate::predefined_prelude::*;
 
 pub struct Sword {
     name: String,
-    damage: Vec<(bool, Effect)>,
+    damage: Vec<(WeaponTarget, Effect)>,
 }
 
 impl Weapon for Sword {
@@ -11,7 +11,7 @@ impl Weapon for Sword {
         self.name.clone()
     }
 
-    fn use_weapon(&self, user: &Fighter, target: &Fighter) -> Vec<(bool, Consequence)> {
+    fn use_weapon(&self, user: &Fighter, target: &Fighter) -> Vec<(WeaponTarget, Consequence)> {
         let mut consequences  = vec![];
         for (b, e) in &self.damage {
             consequences.push((b.clone(), e.to_consequence(user, target)))
@@ -35,7 +35,7 @@ fn get(name: Swords) -> Sword {
         Swords::WoodenSword => Sword {
             name: String::from("Wooden Sword"),
             damage: vec![
-                (false, Effect::Attack {
+                (WeaponTarget::Other, Effect::Attack {
                     damage: 10,
                     attack_type: AttackType::Physical,
                     element: Element::Neutral

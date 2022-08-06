@@ -153,7 +153,7 @@ impl Action {
         }
     }
 
-    pub fn execute(&self, active: &Fighter, target: &Fighter) -> Vec<(bool, Consequence)> {
+    pub fn execute(&self, active: &Fighter, target: &Fighter) -> Vec<(WeaponTarget, Consequence)> {
         println!(
             "\t\t{:} ({:}).",
             self.name(),
@@ -162,7 +162,7 @@ impl Action {
         let mut consequences = vec![];
         match self {
             Action::Wait => (),
-            Action::Defense => consequences.push((true, active.defense())),
+            Action::Defense => consequences.push((WeaponTarget::Me, active.defense())),
             Action::Attack(weapon, _) => consequences.append(&mut weapon.use_weapon(active, target)),
         }
         return consequences;
