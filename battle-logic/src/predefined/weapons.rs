@@ -37,7 +37,6 @@ fn get(name: Swords) -> Sword {
             damage: vec![
                 (WeaponTarget::Other, Effect::Attack {
                     damage: 10,
-                    attack_type: AttackType::Physical,
                     element: Element::Neutral
                 })
             ],

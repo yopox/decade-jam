@@ -46,7 +46,6 @@ pub enum Stat {
     Health,
     Attack,
     Defense,
-    Wisdom,
     Speed,
     Nature,
     Demon,
