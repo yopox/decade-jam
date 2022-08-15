@@ -113,8 +113,24 @@ impl Fighter {
         self.alive
     }
 
-    pub(crate) fn damage(&mut self, attack: u16, defense: u16, amount: u16) {
-        let damage = amount * (attack + 1) / (attack + defense + 1);
+    pub(crate) fn damage(&mut self, amount: u16) {
+        let mut damage;
+
+        if self.stats.defense > 0 {
+            // Shield
+            if self.stats.defense > amount {
+                // Full block
+                damage = 0;
+                self.stats.defense -= amount;
+            } else {
+                damage = amount - self.stats.defense;
+                self.stats.defense = 0;
+            }
+        } else {
+            // No shield
+            damage = amount
+        };
+
         if damage >= self.stats.health {
             println!("\t\t{} lost {}HP…", &self.name, self.stats.health);
             self.stats.health = 0;

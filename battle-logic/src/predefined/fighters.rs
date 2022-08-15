@@ -16,13 +16,13 @@ fn get(fighter: Fighters) -> Fighter {
     match fighter {
         Fighters::Arches => Fighter::new(
             "Arches".to_string(),
-            Stats::new(100, 20, 10, 10, 0, 10),
+            Stats::new(100, 5, 10, 10, 0, 10),
             vec![Rules::Attack2.new()],
             Rules::Wait.new()
         ),
         Fighters::Bat => Fighter::new(
             "Bat".to_string(),
-            Stats::new(30, 8, 10, 5, 8, 4),
+            Stats::new(60, 8, 15, 5, 8, 4),
             vec![Rules::Attack2.new()],
             Rules::Wait.new()
         )

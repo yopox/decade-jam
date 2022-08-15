@@ -21,8 +21,6 @@ pub trait Weapon {
 #[derive(Clone)]
 pub enum Consequence {
     Attack {
-        attack: u16,
-        defense: u16,
         damage: u16,
     },
     Buff {
@@ -35,13 +33,13 @@ pub enum Consequence {
 impl Consequence {
     pub fn apply_on(&self, fighter: &mut Fighter) {
         match self {
-            Consequence::Attack { attack, defense, damage } => fighter.damage(*attack, *defense, *damage),
+            Consequence::Attack { damage } => fighter.damage(*damage),
             Consequence::Buff { .. } => {}
         }
     }
 
-    pub fn from_damage(element: &Element, damage: u16, user: &Fighter, target: &Fighter) -> Consequence {
-        let (attack, defense) = (user.calc_attack(element), target.calc_defense(element));
-        Consequence::Attack { attack, defense, damage }
+    pub fn from_damage(element: &Element, damage: u16, user: &Fighter) -> Consequence {
+        let attack = user.calc_attack(element);
+        Consequence::Attack { damage: attack + damage }
     }
 }

@@ -11,7 +11,7 @@ impl Effect {
     pub fn to_consequence(&self, user: &Fighter, target: &Fighter) -> Consequence {
         match self {
             Effect::Attack { damage, element } => {
-                Consequence::from_damage(element, *damage, user, target)
+                Consequence::from_damage(element, *damage, user)
             }
         }
     }
