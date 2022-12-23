@@ -89,7 +89,7 @@ impl Fight {
 
                 // Resolve rule, action, target for the turn
                 let rule = active.get_rule(&self);
-                let action = rule.get_action().clone();
+                let action = rule.action.clone();
                 let target = action.get_target(&id, &self);
                 (action, target)
             };

@@ -5,15 +5,21 @@ use std::rc::Rc;
 use crate::logic_prelude::*;
 
 #[derive(Clone)]
-pub enum Rule {
-    ID(Condition, Action),
-    NOT(Condition, Action),
-    AND(Condition, Condition, Action),
-    NAND(Condition, Condition, Action),
-    OR(Condition, Condition, Action),
-    XOR(Condition, Condition, Action),
-    NOR(Condition, Condition, Action),
-    NXOR(Condition, Condition, Action),
+pub enum Gate {
+    ID(Condition),
+    NOT(Condition),
+    AND(Condition, Condition),
+    NAND(Condition, Condition),
+    OR(Condition, Condition),
+    XOR(Condition, Condition),
+    NOR(Condition, Condition),
+    NXOR(Condition, Condition),
+}
+
+#[derive(Clone)]
+pub struct Rule {
+    pub gate: Gate,
+    pub action: Action,
 }
 
 #[derive(Clone)]
@@ -51,34 +57,21 @@ pub enum Stat {
     Demon,
 }
 
-impl Rule {
+impl Gate {
     pub fn check(&self, status: &Fight) -> bool {
         match self {
-            Rule::ID(cond, _) => cond.check(status),
-            Rule::NOT(cond, _) => !cond.check(status),
-            Rule::AND(cond1, cond2, _) => cond1.check(status) && cond2.check(status),
-            Rule::NAND(cond1, cond2, _) => !(cond1.check(status) && cond2.check(status)),
-            Rule::OR(cond1, cond2, _) => cond1.check(status) || cond2.check(status),
-            Rule::XOR(cond1, cond2, _) => {
+            Gate::ID(cond) => cond.check(status),
+            Gate::NOT(cond) => !cond.check(status),
+            Gate::AND(cond1, cond2) => cond1.check(status) && cond2.check(status),
+            Gate::NAND(cond1, cond2) => !(cond1.check(status) && cond2.check(status)),
+            Gate::OR(cond1, cond2) => cond1.check(status) || cond2.check(status),
+            Gate::XOR(cond1, cond2) => {
                 (cond1.check(status) && !cond2.check(status))
                     || (!cond1.check(status) && cond2.check(status))
             }
-            Rule::NOR(cond1, cond2, _) => !(cond1.check(status) || cond2.check(status)),
-            Rule::NXOR(cond1, cond2, _) => (!cond1.check(status) && !cond2.check(status))
+            Gate::NOR(cond1, cond2) => !(cond1.check(status) || cond2.check(status)),
+            Gate::NXOR(cond1, cond2) => (!cond1.check(status) && !cond2.check(status))
                 || (cond1.check(status) || cond2.check(status)),
-        }
-    }
-
-    pub fn get_action(&self) -> &Action {
-        match self {
-            Rule::ID(_, action) => action,
-            Rule::NOT(_, action) => action,
-            Rule::AND(_, _, action) => action,
-            Rule::NAND(_, _, action) => action,
-            Rule::OR(_, _, action) => action,
-            Rule::XOR(_, _, action) => action,
-            Rule::NOR(_, _, action) => action,
-            Rule::NXOR(_, _, action) => action,
         }
     }
 }

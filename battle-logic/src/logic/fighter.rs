@@ -99,7 +99,7 @@ impl Fighter {
     }
 
     pub fn get_rule(&self, status: &Fight) -> Rule {
-        return match self.rules.iter().find(|rule| rule.check(status)) {
+        return match self.rules.iter().find(|rule| rule.gate.check(status)) {
             Some(rule) => rule.clone(),
             None => self.default_rule.clone(),
         };
