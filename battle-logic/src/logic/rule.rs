@@ -26,6 +26,7 @@ pub struct Rule {
 pub enum Condition {
     EveryXTurn(u8),
     OnTurn(u8),
+    FromTurnX(u8),
     LessXHP(u8, Target),
     MoreXHP(u8, Target),
     HasStatus(Target, Status),
@@ -81,6 +82,7 @@ impl Condition {
         match self {
             Condition::EveryXTurn(x) => status.turn % x == 0,
             Condition::OnTurn(turn) => status.turn == *turn,
+            Condition::FromTurnX(turn) => status.turn >= *turn,
             Condition::LessXHP(_, _) => true,
             Condition::MoreXHP(_, _) => true,
             Condition::HasStatus(_, _) => true,
