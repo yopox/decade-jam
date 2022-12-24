@@ -17,17 +17,28 @@ impl Rules {
 
 fn get(name: Rules) -> Rule {
     match name {
-        Rules::Wait => Rule::ID(Condition::EveryXTurn(1), Action::Wait),
-        Rules::Defense => Rule::ID(Condition::EveryXTurn(1), Action::Defense),
-        Rules::Attack2 => Rule::ID(
-            Condition::EveryXTurn(2),
-            Action::Attack(Rc::new(Swords::WoodenSword.new()), Target::FoeLess(Stat::Health)),
-        ),
-        Rules::Careful => Rule::AND(
-            Condition::EveryXTurn(2),
-            Condition::LessXHP(30, Target::Them),
-            Action::Defense,
-        ),
+        Rules::Wait => Rule {
+            gate: Gate::ID(Condition::EveryXTurn(1)),
+            action: Action::Wait
+        },
+        Rules::Defense => Rule {
+            gate: Gate::ID(Condition::EveryXTurn(1)),
+            action: Action::Defense
+        },
+        Rules::Attack2 => Rule {
+            gate: Gate::ID(Condition::EveryXTurn(2)),
+            action: Action::Attack(
+                Rc::new(Swords::WoodenSword.new()),
+                Target::FoeLess(Stat::Health)
+            ),
+        },
+        Rules::Careful => Rule {
+            gate: Gate::AND(
+                Condition::EveryXTurn(2),
+                Condition::LessXHP(30, Target::Them)
+            ),
+            action: Action::Defense
+        },
     }
 }
 
