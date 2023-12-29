@@ -2,13 +2,10 @@ use std::fmt::Debug;
 use std::ops::Deref;
 use crate::logic_prelude::*;
 
-pub enum Rune {
-    Gate(Gate),
-    Condition(Condition),
-    Action(Action),
-    Target(Target),
-    Stat(Stat),
-    Number(u8),
+#[derive(Clone, Debug, PartialEq)]
+pub struct Rule {
+    pub gate: Gate,
+    pub action: Action,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -21,12 +18,6 @@ pub enum Gate {
     XOR(Condition, Condition),
     NOR(Condition, Condition),
     NXOR(Condition, Condition),
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct Rule {
-    pub gate: Gate,
-    pub action: Action,
 }
 
 #[derive(Clone, Debug, PartialEq)]

@@ -130,7 +130,7 @@ impl Fighter {
     }
 
     pub(crate) fn damage(&mut self, amount: u16) {
-        let mut damage;
+        let damage;
 
         if self.stats.defense > 0 {
             // Shield
