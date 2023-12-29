@@ -2,7 +2,16 @@ use std::fmt::Debug;
 use std::ops::Deref;
 use crate::logic_prelude::*;
 
-#[derive(Clone)]
+pub enum Rune {
+    Gate(Gate),
+    Condition(Condition),
+    Action(Action),
+    Target(Target),
+    Stat(Stat),
+    Number(u8),
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub enum Gate {
     ID(Condition),
     NOT(Condition),

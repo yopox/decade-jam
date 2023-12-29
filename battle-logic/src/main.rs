@@ -15,6 +15,10 @@ pub mod predefined {
     pub mod effects;
 }
 
+pub mod api {
+    pub mod input;
+}
+
 pub mod logic_prelude {
     pub use crate::logic::equipment::*;
     pub use crate::logic::fight::*;
