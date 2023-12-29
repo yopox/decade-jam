@@ -1,4 +1,5 @@
 use crate::logic_prelude::*;
+use crate::predefined;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Stats {
@@ -71,11 +72,21 @@ pub struct Fighter {
     alive: bool,
     rules: Vec<Rule>,
     default_rule: Rule,
+    weapon: Option<Box<dyn Weapon>>,
+    // spell: Option<Weapon>,
 }
 
 impl Fighter {
-    pub fn new(name: String, stats: Stats, rules: Vec<Rule>, default_rule: Rule) -> Self {
-        Fighter { name, base_stats: stats.clone(), stats: stats.clone(), alive: true, rules, default_rule }
+    pub fn new(name: String, stats: Stats, rules: Vec<Rule>, weapon: Option<Box<dyn Weapon>>) -> Self {
+        Fighter {
+            name,
+            base_stats: stats.clone(),
+            stats: stats.clone(),
+            alive: true,
+            rules,
+            default_rule: predefined::rules::Rules::Wait.new(),
+            weapon,
+        }
     }
 
     pub fn turn(&mut self) {
@@ -104,6 +115,11 @@ impl Fighter {
             None => self.default_rule.clone(),
         };
     }
+
+    pub fn get_weapon(&self) -> Option<&dyn Weapon> { match &self.weapon {
+        None => None,
+        Some(b) => Some(b.as_ref()),
+    }}
 
     pub fn set_rules(&mut self, rules: Vec<Rule>) {
         self.rules = rules;
