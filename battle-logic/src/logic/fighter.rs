@@ -1,4 +1,4 @@
-use crate::logic_prelude::*;
+use crate::logic::prelude::*;
 use crate::predefined;
 
 #[derive(Debug, PartialEq, Clone, Copy)]

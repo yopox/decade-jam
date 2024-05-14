@@ -1,6 +1,6 @@
-use crate::logic_prelude::*;
-use crate::predefined_prelude::*;
-use crate::predefined_prelude::Swords::WoodenSword;
+use crate::logic::prelude::*;
+use crate::predefined::prelude::*;
+use crate::predefined::prelude::Swords::WoodenSword;
 
 pub enum Fighters {
     Arches,

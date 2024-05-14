@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::logic_prelude::{Action, Condition, Gate, Rule, Stat, Target};
+use crate::logic::prelude::{Action, Condition, Gate, Rule, Stat, Target};
 
 pub enum Rune {
     Gate(Gate),

@@ -1,7 +1,7 @@
 use std::cell::{Ref, RefCell, RefMut};
 use std::ops::{Deref, DerefMut};
 
-use crate::logic_prelude::*;
+use crate::logic::prelude::*;
 
 #[derive(Debug, PartialEq)]
 pub enum State {

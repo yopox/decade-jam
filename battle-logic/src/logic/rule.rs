@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 use std::ops::Deref;
-use crate::logic_prelude::*;
+use crate::logic::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Rule {

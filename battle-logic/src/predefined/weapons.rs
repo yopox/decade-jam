@@ -1,5 +1,5 @@
-use crate::logic_prelude::*;
-use crate::predefined_prelude::*;
+use crate::logic::prelude::*;
+use crate::predefined::prelude::*;
 
 pub struct Sword {
     name: String,
