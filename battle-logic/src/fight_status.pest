@@ -1,0 +1,35 @@
+//
+// Created by intellij-pest on 2024-05-20
+// fight_status
+// Author: yopox
+//
+
+WHITESPACE = _{ " " }
+character = @{ "[" ~ UPPERCASE_LETTER ~ "]" }
+rule = { NUMBER }
+value = { NUMBER+ }
+
+fight_status = { NEWLINE* ~ (turn)+ ~ outcome }
+
+turn = { header ~ NEWLINE+ ~ log+ }
+
+header = { "- TURN" ~ value }
+
+log = { (action_log | reaction_log | status_log) ~ NEWLINE+ }
+
+action_log = { "!" ~ character ~ rule ~ "->" ~ action }
+
+action = { attack | defense | spell | wait }
+attack = { "ATK" ~ character }
+defense = { "DEF" }
+spell = { "SPL" ~ character }
+wait = { "WAIT" }
+
+reaction_log = { ">" ~ character ~ reaction_origin ~ "->" ~ action }
+reaction_origin = { "RELIC" ~ NUMBER+ }
+
+status_log = { ":" ~ character ~ stat ~ value ~ "->" ~ value }
+stat = { "HP" | "ATK" | "DEF" | "DEM" | "NAT" | "SPD" }
+
+outcome = { "=" ~ winner }
+winner = { "WON" | "LOST" | "DRAW" }
