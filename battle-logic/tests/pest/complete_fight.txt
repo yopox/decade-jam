@@ -1,0 +1,125 @@
+Complete Fight
+
+=======
+
+- TURN 1
+! [A] 0 -> ATK [B]
+: [B] HP 10 -> 5
+! [B] 0 -> ATK [A]
+: [A] HP 10 -> 8
+- TURN 2
+! [A] 1 -> DEF
+! [B] 0 -> ATK [A]
+: [A] HP 8 -> 7
+- TURN 3
+! [A] 0 -> ATK [B]
+: [B] HP 5 -> 0
+= WON
+
+=======
+
+(fight_status
+  (turn
+    (header
+      (value: "1")
+    )
+    (log
+      (action_log
+        (character: "[A]")
+        (rule: "0")
+        (action
+          (attack
+            (character: "[B]")
+          )
+        )
+      )
+    )
+    (log
+      (status_log
+        (character: "[B]")
+        (stat: "HP")
+        (value: "10")
+        (value: "5")
+      )
+    )
+    (log
+      (action_log
+        (character: "[B]")
+        (rule: "0")
+        (action
+          (attack
+            (character: "[A]")
+          )
+        )
+      )
+    )
+    (log
+      (status_log
+        (character: "[A]")
+        (stat: "HP")
+        (value: "10")
+        (value: "8")
+      )
+    )
+  )
+  (turn
+    (header
+      (value: "2")
+    )
+    (log
+      (action_log
+        (character: "[A]")
+        (rule: "1")
+        (action
+          (defense: "DEF")
+        )
+      )
+    )
+    (log
+      (action_log
+        (character: "[B]")
+        (rule: "0")
+        (action
+          (attack
+            (character: "[A]")
+          )
+        )
+      )
+    )
+    (log
+      (status_log
+        (character: "[A]")
+        (stat: "HP")
+        (value: "8")
+        (value: "7")
+      )
+    )
+  )
+  (turn
+    (header
+      (value: "3")
+    )
+    (log
+      (action_log
+        (character: "[A]")
+        (rule: "0")
+        (action
+          (attack
+            (character: "[B]")
+          )
+        )
+      )
+    )
+    (log
+      (status_log
+        (character: "[B]")
+        (stat: "HP")
+        (value: "5")
+        (value: "0")
+      )
+    )
+  )
+  (outcome
+    (winner: "WON")
+  )
+)

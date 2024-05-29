@@ -15,7 +15,7 @@ The input is a textual description of the two teams fighting and the output is t
         HP 10 ATK 5 DEF 0
         NAT 0 DEM 0 SPD 5
     RULES
-        ID EXT 2 ATK ELHP WOODEN_SWORD
+        ID EXT 2 ATK ELHP SWORD 1
         ID EXT 1 DEF
 
 ---
@@ -25,7 +25,7 @@ The input is a textual description of the two teams fighting and the output is t
         HP 10 ATK 2 DEF 0
         NAT 2 DEM 8 SPD 3
     RULES
-        ID EXT 1 ATK EMHP BITE
+        ID EXT 1 ATK EMHP SWORD 2
 ```
 
 ## Fight output

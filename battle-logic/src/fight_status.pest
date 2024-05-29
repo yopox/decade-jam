@@ -7,7 +7,7 @@
 WHITESPACE = _{ " " }
 character = @{ "[" ~ UPPERCASE_LETTER ~ "]" }
 rule = { NUMBER }
-value = { NUMBER+ }
+value = @{ NUMBER+ }
 
 fight_status = { NEWLINE* ~ (turn)+ ~ outcome }
 
