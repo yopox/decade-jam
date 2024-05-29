@@ -8,7 +8,7 @@ pub enum Effect {
 }
 
 impl Effect {
-    pub fn to_consequence(&self, user: &Fighter, target: &Fighter) -> Consequence {
+    pub fn to_consequence(&self, user: &Fighter, _target: &Fighter) -> Consequence {
         match self {
             Effect::Attack { damage, element } => {
                 Consequence::from_damage(element, *damage, user)

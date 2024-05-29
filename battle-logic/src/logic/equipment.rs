@@ -13,6 +13,7 @@ pub enum WeaponTarget {
     Other,
 }
 
+/// TODO: Make [Weapon] a rune in [crate::logic::rule]
 pub trait Weapon {
     fn get_name(&self) -> String;
     fn use_weapon(&self, user: &Fighter, target: &Fighter) -> Vec<(WeaponTarget, Consequence)>;
