@@ -1,0 +1,66 @@
+//
+// Created by intellij-pest on 2024-05-27
+// fighters_info
+// Author: yopox
+//
+
+WHITESPACE = _{ " " }
+char_id = @{ "[" ~ UPPERCASE_LETTER ~ "]" }
+name = { LETTER+ }
+value = @{ NUMBER+ }
+
+fighters_info = { NEWLINE* ~ team ~ NEWLINE+ ~ "---" ~ NEWLINE+ ~ team }
+
+team = { character+ }
+
+character = { char_id ~ name ~ NEWLINE ~ stats ~ rules }
+
+stats = { "STATS" ~ NEWLINE ~ char_hp ~ char_atk ~ char_def ~ NEWLINE ~ char_nat ~ char_dem ~ char_spd ~ NEWLINE }
+char_hp = { "HP" ~ value }
+char_atk = { "ATK" ~ value }
+char_def = { "DEF" ~ value }
+char_nat = { "NAT" ~ value }
+char_dem = { "DEM" ~ value }
+char_spd = { "SPD" ~ value }
+
+rules = { "RULES" ~ NEWLINE ~ rule* }
+
+rule = { gate ~ action ~ NEWLINE }
+
+gate = { id | not | or | nor | xor | and | nand }
+id = { "ID" ~ cond }
+not = { "NOT" ~ cond }
+or = { "OR" ~ cond ~ cond }
+nor = { "NOR" ~ cond ~ cond }
+xor = { "XOR" ~ cond ~ cond }
+and = { "AND" ~ cond ~ cond }
+nand = { "NAND" ~ cond ~ cond }
+
+cond = { every_x_turns | on_turn | from_turn }
+every_x_turns = { "EXT" ~ value }
+on_turn = { "T=" ~ value }
+from_turn = { "T>=" ~ value }
+hp_less = { "LXHP" ~ value ~ target }
+hp_more = { "MXHP" ~ value ~ target }
+has_status = { "STATUS" ~ target ~ status }
+
+status = { "SLOW" | "BURN" }
+
+action = { atk | spl | def }
+atk = { "ATK" ~ target ~ weapon }
+spl = { "SPL" ~ target ~ spell }
+def = { "DEF" }
+wait = { "WAIT" }
+
+target = { slf | enemy_less | enemy_more | ally_less | ally_more }
+slf = { "SELF" }
+enemy_less = { "EL" ~ stat }
+enemy_more = { "EM" ~ stat }
+ally_less = { "AL" ~ stat }
+ally_more = { "AM" ~ stat }
+
+stat = { "HP" | "ATK" | "DEF" | "DEM" | "NAT" | "SPD" }
+
+weapon = { "SWORD" ~ value }
+spell = { fireball }
+fireball = { "FIREBALL" ~ value }

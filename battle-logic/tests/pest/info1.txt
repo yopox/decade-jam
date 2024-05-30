@@ -1,0 +1,141 @@
+Info 1
+
+=======
+
+[A] HERO
+    STATS
+        HP 10 ATK 5 DEF 0
+        NAT 0 DEM 0 SPD 5
+    RULES
+        ID EXT 2 ATK EL HP SWORD 1
+        ID EXT 1 DEF
+
+---
+
+[B] ENEMY
+    STATS
+        HP 10 ATK 2 DEF 0
+        NAT 2 DEM 8 SPD 3
+    RULES
+        ID EXT 1 ATK EM HP SWORD 2
+
+=======
+
+(fighters_info
+  (team
+    (character
+      (char_id: "[A]")
+      (name: "HERO")
+      (stats
+        (char_hp
+          (value: "10")
+        )
+        (char_atk
+          (value: "5")
+        )
+        (char_def
+          (value: "0")
+        )
+        (char_nat
+          (value: "0")
+        )
+        (char_dem
+          (value: "0")
+        )
+        (char_spd
+          (value: "5")
+        )
+      )
+      (rules
+        (rule
+          (gate
+            (id
+              (cond
+                (every_x_turns
+                  (value: "2")
+                )
+              )
+            )
+          )
+          (action
+            (atk
+              (target
+                (enemy_less
+                  (stat: "HP")
+                )
+              )
+              (weapon
+                (value: "1")
+              )
+            )
+          )
+        )
+        (rule
+          (gate
+            (id
+              (cond
+                (every_x_turns
+                  (value: "1")
+                )
+              )
+            )
+          )
+          (action
+            (def: "DEF")
+          )
+        )
+      )
+    )
+  )
+  (team
+    (character
+      (char_id: "[B]")
+      (name: "ENEMY")
+      (stats
+        (char_hp
+          (value: "10")
+        )
+        (char_atk
+          (value: "2")
+        )
+        (char_def
+          (value: "0")
+        )
+        (char_nat
+          (value: "2")
+        )
+        (char_dem
+          (value: "8")
+        )
+        (char_spd
+          (value: "3")
+        )
+      )
+      (rules
+        (rule
+          (gate
+            (id
+              (cond
+                (every_x_turns
+                  (value: "1")
+                )
+              )
+            )
+          )
+          (action
+            (atk
+              (target
+                (enemy_more
+                  (stat: "HP")
+                )
+              )
+              (weapon
+                (value: "2")
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
